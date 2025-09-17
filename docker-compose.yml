@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  vocalist-bot:
+    build: .
+    container_name: vocalist-screening-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - GOOGLE_DRIVE_FOLDER_ID=${GOOGLE_DRIVE_FOLDER_ID}
+      - GOOGLE_SHEET_ID=${GOOGLE_SHEET_ID}
+      - GOOGLE_SHEET_RANGE=${GOOGLE_SHEET_RANGE:-A:G}
+      - DATABASE_PATH=/app/data/vocalist_screening.db
+      - REVIEWER_TELEGRAM_CHAT_ID=${REVIEWER_TELEGRAM_CHAT_ID}
+      - REVIEWER_EMAIL=${REVIEWER_EMAIL}
+      - GOOGLE_CREDENTIALS_FILE=/app/credentials.json
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./credentials.json:/app/credentials.json
+      - ./.env:/app/.env
+    ports:
+      - "8080:8080"  # For webhook if needed
+    command: python run_bot.py
+
+  # Optional: Add a web interface for reviewers
+  web-interface:
+    build: .
+    container_name: vocalist-web-interface
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_PATH=/app/data/vocalist_screening.db
+    volumes:
+      - ./data:/app/data
+      - ./web_interface:/app/web_interface
+    command: python web_interface/app.py
+    depends_on:
+      - vocalist-bot
