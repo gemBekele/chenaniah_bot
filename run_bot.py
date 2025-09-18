@@ -16,6 +16,12 @@ sys.path.insert(0, str(Path(__file__).parent))
 from telegram_bot import VocalistScreeningBot
 from config import Config
 
+# Create necessary directories first
+Path("logs").mkdir(exist_ok=True)
+Path("data").mkdir(exist_ok=True)
+Path("temp").mkdir(exist_ok=True)
+Path("exports").mkdir(exist_ok=True)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -116,12 +122,6 @@ class BotRunner:
 
 def main():
     """Main entry point"""
-    # Create necessary directories if they don't exist
-    Path("logs").mkdir(exist_ok=True)
-    Path("data").mkdir(exist_ok=True)
-    Path("temp").mkdir(exist_ok=True)
-    Path("exports").mkdir(exist_ok=True)
-    
     # Run the bot
     runner = BotRunner()
     runner.run()
