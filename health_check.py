@@ -3,9 +3,10 @@
 Health check endpoint for Render.com deployment
 """
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_file, abort
 import os
 from datetime import datetime
+from pathlib import Path
 
 app = Flask(__name__)
 
@@ -77,6 +78,32 @@ def status():
         'telegram_api_status': 'connected',
         'last_check': datetime.now().isoformat()
     })
+
+@app.route('/audio_files/<path:filename>')
+def serve_audio(filename):
+    """Serve audio files from local storage"""
+    try:
+        # Security: prevent directory traversal
+        if '..' in filename or filename.startswith('/'):
+            abort(403)
+        
+        # Construct file path
+        file_path = Path("audio_files") / filename
+        
+        # Check if file exists
+        if not file_path.exists():
+            abort(404)
+        
+        # Serve the file
+        return send_file(
+            file_path,
+            as_attachment=False,
+            mimetype='audio/mpeg'
+        )
+    
+    except Exception as e:
+        print(f"Error serving file {filename}: {e}")
+        abort(500)
 
 if __name__ == '__main__':
     # This is for local testing only

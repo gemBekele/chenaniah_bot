@@ -88,6 +88,10 @@ class BotRunner:
             )
             self.health_server.start()
             logger.info(f"Health check server started on port {port}")
+            
+            # Audio files are served through the main health check app
+            logger.info("Audio files will be served through the main app")
+                
         except Exception as e:
             logger.warning(f"Could not start health server: {e}")
 

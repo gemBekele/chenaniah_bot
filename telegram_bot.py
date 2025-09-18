@@ -9,6 +9,7 @@ from telegram.constants import ParseMode
 from config import Config
 from database import Database
 from google_services import GoogleDriveService, GoogleSheetsService
+from local_storage_service import LocalStorageService
 
 # Configure logging
 logging.basicConfig(
@@ -22,6 +23,7 @@ class VocalistScreeningBot:
         self.db = Database()
         self.drive_service = GoogleDriveService()
         self.sheets_service = GoogleSheetsService()
+        self.local_storage = LocalStorageService()
         self.application = None
     
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -145,13 +147,23 @@ Please send me your **full name**:
             username = user_data.get('username', 'user')
             filename = f"worship_sample_{username}_{timestamp}.mp3"
             
-            # Upload to Google Drive
-            file_id = await self.drive_service.upload_audio_file(
-                file_data, filename, audio.mime_type or 'audio/mpeg'
-            )
-            
-            # Create a viewable link for display
-            audio_view_link = f"https://drive.google.com/file/d/{file_id}/view"
+            # Try Google Drive first, fallback to local storage
+            try:
+                file_id = await self.drive_service.upload_audio_file(
+                    file_data, filename, audio.mime_type or 'audio/mpeg'
+                )
+                # Create a viewable link for display
+                audio_view_link = f"https://drive.google.com/file/d/{file_id}/view"
+                storage_type = "google_drive"
+            except Exception as drive_error:
+                logger.warning(f"Google Drive upload failed, using local storage: {drive_error}")
+                # Fallback to local storage
+                file_id = await self.local_storage.upload_audio_file(
+                    file_data, filename, audio.mime_type or 'audio/mpeg'
+                )
+                # Create a local file URL
+                audio_view_link = self.local_storage.get_file_url(file_id)
+                storage_type = "local"
             
             # Update user state with audio info
             await self.db.update_user_state(
