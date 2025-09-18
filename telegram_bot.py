@@ -189,29 +189,28 @@ Please send me your **full name**:
                     "❌ **Google Drive Permission Error**\n\n"
                     "The bot doesn't have permission to upload files to the Google Drive folder. "
                     "Please contact the administrator to fix this issue.\n\n"
-                    "In the meantime, you can still submit your application without the audio file."
+                    "**Audio files are required for your application.** Please try again once the issue is resolved."
                 )
             elif "HttpError 403" in str(e):
                 error_message = (
                     "❌ **Google Drive Access Denied**\n\n"
                     "There's an issue with Google Drive access. Please contact the administrator.\n\n"
-                    "You can still submit your application without the audio file."
+                    "**Audio files are required for your application.** Please try again once the issue is resolved."
                 )
             else:
                 error_message = (
                     "❌ Sorry, there was an error processing your audio file. Please try again.\n\n"
-                    "If the problem persists, you can still submit your application without the audio file."
+                    "**Audio files are required for your application.** If the problem persists, please contact support."
                 )
             
-            # Show error message with fallback option
+            # Show error message with retry option only
             keyboard = [
-                [InlineKeyboardButton("📝 Submit Without Audio", callback_data="submit_without_audio")],
                 [InlineKeyboardButton("🔄 Try Again", callback_data="retry_audio")]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             
             await update.message.reply_text(
-                error_message + "\n\n**What would you like to do?**",
+                error_message + "\n\n**Please try uploading your audio file again:**",
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=reply_markup
             )
@@ -228,8 +227,6 @@ Please send me your **full name**:
             await self.submit_application(query, user_id)
         elif data == "cancel_application":
             await self.cancel_application(query, user_id)
-        elif data == "submit_without_audio":
-            await self.submit_without_audio(query, user_id)
         elif data == "retry_audio":
             await self.retry_audio(query, user_id)
     
@@ -290,55 +287,6 @@ Please send me your **full name**:
         await query.edit_message_text(
             "❌ Application cancelled. Send /start to begin again anytime."
         )
-    
-    async def submit_without_audio(self, query, user_id: int):
-        """Submit application without audio"""
-        try:
-            # Get user data
-            user_data = await self.db.get_user_state(user_id)
-            if not user_data:
-                await query.edit_message_text("❌ No application data found. Please start over with /start")
-                return
-            
-            # Create submission in database without audio
-            submission_id = await self.db.create_submission(
-                user_id=user_id,
-                name=user_data.get('name'),
-                address=user_data.get('address'),
-                phone=user_data.get('phone'),
-                telegram_username=user_data.get('username'),
-                audio_drive_link=None  # No audio file
-            )
-            
-            # Add to Google Sheets without audio
-            await self.sheets_service.add_submission(
-                name=user_data.get('name'),
-                address=user_data.get('address'),
-                phone=user_data.get('phone'),
-                telegram_username=user_data.get('username'),
-                audio_link="No audio file provided"
-            )
-            
-            # Reset user state
-            await self.db.reset_user_state(user_id)
-            
-            # Send confirmation
-            await query.edit_message_text(
-                f"🎉 **Application Submitted Successfully!**\n\n"
-                f"Thank you, {user_data.get('name')}! Your worship ministry application has been submitted.\n\n"
-                f"**Note:** No audio file was included due to technical issues.\n"
-                f"Our team will review your submission and contact you!\n\n"
-                f"**Application ID:** #{submission_id}\n"
-                f"**Submitted at:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                f"May God bless your heart for worship! 🙏",
-                parse_mode=ParseMode.MARKDOWN
-            )
-            
-        except Exception as e:
-            logger.error(f"Error submitting application without audio: {e}")
-            await query.edit_message_text(
-                "❌ Sorry, there was an error submitting your application. Please try again later."
-            )
     
     async def retry_audio(self, query, user_id: int):
         """Retry audio upload"""
@@ -460,6 +408,13 @@ Need help? Contact our ministry team.
         # Start the bot
         logger.info("Starting Vocalist Screening Bot...")
         try:
+            # Add a delay to prevent conflicts with other instances
+            import time
+            import random
+            delay = random.uniform(1, 5)  # Random delay between 1-5 seconds
+            logger.info(f"Waiting {delay:.2f} seconds to prevent conflicts...")
+            time.sleep(delay)
+            
             # The run_polling method already handles webhook cleanup
             self.application.run_polling(drop_pending_updates=True)
         except Exception as e:
