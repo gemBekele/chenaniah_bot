@@ -154,27 +154,23 @@ class GoogleSheetsService:
             # audio_link is now the file ID directly
             file_id = audio_link
             
-            # Create multiple link formats for better usability
-            play_link = f"https://drive.google.com/uc?export=download&id={file_id}"
+            # Create a simple, clean audio link that opens in Google Drive
             view_link = f"https://drive.google.com/file/d/{file_id}/view"
-            embed_link = f"https://drive.google.com/file/d/{file_id}/preview"
             
-            # Create a simple, clean audio link that opens in Google Drive player
-            # The preview link opens Google Drive's built-in audio player
-            audio_cell_value = f"=HYPERLINK(\"{embed_link}\", \"🎵 Play Audio\")"
+            # Create a clickable link that opens Google Drive player
+            # Use the direct link instead of formula to ensure it works
+            audio_cell_value = view_link
             
-            # Prepare row data with multiple audio access options
+            # Prepare row data - use simple values, no formulas
             values = [
                 [
                     name,
                     address,
                     phone,
                     f"https://t.me/{telegram_username}" if telegram_username else "No username",
-                    audio_cell_value,  # Main audio link
-                    f"=HYPERLINK(\"{play_link}\", \"📥 Download\")",  # Download link
-                    f"=HYPERLINK(\"{view_link}\", \"👁️ View\")",  # View link
+                    view_link,  # Direct link, no formula
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "Pending"  # Status column
+                    "Under Review"  # Status column
                 ]
             ]
             
@@ -186,7 +182,7 @@ class GoogleSheetsService:
             result = self.service.spreadsheets().values().append(
                 spreadsheetId=Config.GOOGLE_SHEET_ID,
                 range=Config.GOOGLE_SHEET_RANGE,
-                valueInputOption='RAW',
+                valueInputOption='RAW',  # Use RAW to prevent formula interpretation
                 body=body
             ).execute()
             

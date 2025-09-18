@@ -7,6 +7,7 @@ import asyncio
 import logging
 import signal
 import sys
+import threading
 from pathlib import Path
 
 # Add current directory to Python path
@@ -31,6 +32,7 @@ class BotRunner:
     def __init__(self):
         self.bot = None
         self.running = False
+        self.health_server = None
     
     def signal_handler(self, signum, frame):
         """Handle shutdown signals"""
@@ -64,6 +66,22 @@ class BotRunner:
         
         return True
     
+    def start_health_server(self):
+        """Start health check server for Render"""
+        try:
+            from health_check import app
+            import os
+            
+            port = int(os.getenv('PORT', 5000))
+            self.health_server = threading.Thread(
+                target=lambda: app.run(host='0.0.0.0', port=port, debug=False),
+                daemon=True
+            )
+            self.health_server.start()
+            logger.info(f"Health check server started on port {port}")
+        except Exception as e:
+            logger.warning(f"Could not start health server: {e}")
+
     def run(self):
         """Run the bot"""
         logger.info("Starting Vocalist Screening Bot...")
@@ -72,6 +90,9 @@ class BotRunner:
         if not self.check_configuration():
             logger.error("Configuration check failed. Exiting.")
             sys.exit(1)
+        
+        # Start health check server for Render
+        self.start_health_server()
         
         # Set up signal handlers
         signal.signal(signal.SIGINT, self.signal_handler)
@@ -95,8 +116,11 @@ class BotRunner:
 
 def main():
     """Main entry point"""
-    # Create logs directory if it doesn't exist
+    # Create necessary directories if they don't exist
     Path("logs").mkdir(exist_ok=True)
+    Path("data").mkdir(exist_ok=True)
+    Path("temp").mkdir(exist_ok=True)
+    Path("exports").mkdir(exist_ok=True)
     
     # Run the bot
     runner = BotRunner()

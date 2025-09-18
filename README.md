@@ -1,13 +1,13 @@
-# 🎤 Vocalist Screening Bot
+# 🎵 Chenaniah Worship Ministry Application Bot
 
-An automated system for screening vocalists through Telegram, with Google Drive storage and Google Sheets integration for seamless review management.
+An automated system for worship ministry applications through Telegram, with Google Drive storage and Google Sheets integration for seamless application review and management.
 
 ## ✨ Features
 
-- **Telegram Bot Interface**: Easy-to-use conversation flow for vocalist submissions
-- **Google Drive Integration**: Automatic audio file upload and shareable link generation
-- **Google Sheets Management**: Centralized submission tracking and review system
-- **Real-time Notifications**: Instant alerts for reviewers when new submissions arrive
+- **Telegram Bot Interface**: Easy-to-use conversation flow for worship ministry applications
+- **Google Drive Integration**: Automatic worship song upload and shareable link generation
+- **Google Sheets Management**: Centralized application tracking and review system
+- **Real-time Notifications**: Instant alerts for ministry team when new applications arrive
 - **Admin Tools**: Comprehensive management and analytics tools
 - **Docker Support**: Easy deployment with Docker and Docker Compose
 

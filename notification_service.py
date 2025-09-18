@@ -37,17 +37,17 @@ class NotificationService:
     def _format_submission_notification(self, submission_data: Dict[str, Any]) -> str:
         """Format submission data into notification message"""
         return f"""
-🔔 **New Vocalist Submission**
+🔔 **New Worship Ministry Application**
 
 **Name:** {submission_data.get('name', 'N/A')}
 **Phone:** {submission_data.get('phone', 'N/A')}
 **Address:** {submission_data.get('address', 'N/A')}
 **Telegram:** @{submission_data.get('telegram_username', 'No username')}
-**Submission ID:** #{submission_data.get('id', 'N/A')}
-**Audio Link:** {submission_data.get('audio_drive_link', 'N/A')}
+**Application ID:** #{submission_data.get('id', 'N/A')}
+**Worship Sample:** {submission_data.get('audio_drive_link', 'N/A')}
 **Submitted:** {submission_data.get('submitted_at', 'N/A')}
 
-Check the Google Sheet for full details and to add your review.
+Please prayerfully review this application in the Google Sheet.
         """
     
     async def notify_reviewers_status_update(self, submission_id: int, status: str, 
@@ -58,9 +58,9 @@ Check the Google Sheet for full details and to add your review.
         
         try:
             message = f"""
-📝 **Submission Status Updated**
+📝 **Application Status Updated**
 
-**Submission ID:** #{submission_id}
+**Application ID:** #{submission_id}
 **New Status:** {status}
 """
             if reviewer_comments:
@@ -85,12 +85,12 @@ Check the Google Sheet for full details and to add your review.
         
         try:
             message = f"""
-📊 **Daily Submission Summary**
+📊 **Daily Ministry Application Summary**
 
-**Total Submissions Today:** {submissions_count}
+**Total Applications Today:** {submissions_count}
 **Pending Review:** {pending_count}
 
-Check the Google Sheet for details.
+Please review applications in the Google Sheet.
             """
             
             await self.bot.send_message(

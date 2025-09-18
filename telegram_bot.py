@@ -42,18 +42,20 @@ class VocalistScreeningBot:
         )
         
         welcome_message = f"""
-🎤 Welcome to the Vocalist Screening System!
+🎵 Welcome to Chenaniah Worship Ministry!
 
-Hi {user.first_name}! I'm here to help you submit your vocal audition.
+Hi {user.first_name}! We're excited that you're interested in joining our ministry.
 
-To get started, I'll need to collect some information from you:
+To help us get to know you better, I'll need to collect some information:
 
 1. Your full name
 2. Your address
 3. Your phone number
-4. Your audio sample
+4. Your worship song sample
 
-Let's begin! Please send me your **full name**:
+Let's begin! 
+
+Please send me your **full name**:
         """
         
         await update.message.reply_text(welcome_message, parse_mode=ParseMode.MARKDOWN)
@@ -106,11 +108,11 @@ Let's begin! Please send me your **full name**:
         
         await update.message.reply_text(
             f"Excellent! Phone number recorded.\n\n"
-            "Now please send me your **audio sample** (voice note or music file).\n\n"
+            "Now please send me your **worship song sample** (voice note or music file).\n\n"
             "You can either:\n"
-            "• Record a voice message directly\n"
-            "• Upload an audio file\n\n"
-            "Make sure it's a clear recording of your vocals!",
+            "• Record a worship song directly\n"
+            "• Upload an audio file of you singing ( not more than 2MB in size )\n\n"
+            "Please share a clear recording of you singing a worship song!",
             parse_mode=ParseMode.MARKDOWN
         )
     
@@ -132,7 +134,7 @@ Let's begin! Please send me your **full name**:
         
         try:
             # Show processing message
-            processing_msg = await update.message.reply_text("🔄 Processing your audio file...")
+            processing_msg = await update.message.reply_text("🔄 Processing your worship song...")
             
             # Get file from Telegram
             file = await context.bot.get_file(audio.file_id)
@@ -141,7 +143,7 @@ Let's begin! Please send me your **full name**:
             # Generate filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             username = user_data.get('username', 'user')
-            filename = f"vocal_audition_{username}_{timestamp}.mp3"
+            filename = f"worship_sample_{username}_{timestamp}.mp3"
             
             # Upload to Google Drive
             file_id = await self.drive_service.upload_audio_file(
@@ -161,19 +163,19 @@ Let's begin! Please send me your **full name**:
             
             # Show confirmation and submit button
             keyboard = [
-                [InlineKeyboardButton("✅ Submit Application", callback_data="submit_application")],
+                [InlineKeyboardButton("✅ Submit ", callback_data="submit_application")],
                 [InlineKeyboardButton("❌ Cancel", callback_data="cancel_application")]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             
             await processing_msg.edit_text(
-                f"✅ Audio file processed successfully!\n\n"
+                f"✅ Song processed successfully!\n\n"
                 f"**Your Information:**\n"
                 f"Name: {user_data.get('name')}\n"
                 f"Address: {user_data.get('address')}\n"
                 f"Phone: {user_data.get('phone')}\n"
-                f"Audio: [Preview Audio]({audio_view_link})\n\n"
-                f"Click 'Submit Application' to complete your submission:",
+                f"Worship Sample: [Preview Audio]({audio_view_link})\n\n"
+                f"Click 'Submit to Ministry' to complete your application:",
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=reply_markup
             )
@@ -231,11 +233,11 @@ Let's begin! Please send me your **full name**:
             # Send confirmation
             await query.edit_message_text(
                 f"🎉 **Application Submitted Successfully!**\n\n"
-                f"Thank you, {user_data.get('name')}! Your vocal audition has been submitted.\n\n"
-                f"Our team will review your submission and contact you if you're selected.\n\n"
-                f"**Submission ID:** #{submission_id}\n"
+                f"Thank you, {user_data.get('name')}! Your worship ministry application has been submitted.\n\n"
+                f"Our team will review your submission and contact you! \n\n"
+                f"**Application ID:** #{submission_id}\n"
                 f"**Submitted at:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                f"Good luck! 🍀",
+                f"May God bless your heart for worship! 🙏",
                 parse_mode=ParseMode.MARKDOWN
             )
             
@@ -284,7 +286,7 @@ Check the Google Sheet for full details.
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /help command"""
         help_text = """
-🎤 **Vocalist Screening Bot Help**
+🎵 **Chenaniah Worship Ministry Application Help**
 
 **Commands:**
 /start - Begin the application process
@@ -294,15 +296,18 @@ Check the Google Sheet for full details.
 **How it works:**
 1. Send /start to begin
 2. Provide your name, address, and phone number
-3. Upload your audio sample
-4. Submit your application
+3. Upload your worship song sample
+4. Submit your application to the ministry
 
 **Requirements:**
-- Clear audio recording of your vocals
+- Clear recording of you leading worship or singing
 - Valid contact information
 - Complete all steps in order
 
-Need help? Contact the admin.
+**About Chenaniah Worship Ministry:**
+We are seeking passionate worship leaders and singers to join our ministry team. We believe in the power of worship to draw people closer to God.
+
+Need help? Contact our ministry team.
         """
         await update.message.reply_text(help_text, parse_mode=ParseMode.MARKDOWN)
     
@@ -313,7 +318,7 @@ Need help? Contact the admin.
         
         if not user_data or user_data.get('state') == 'idle':
             await update.message.reply_text(
-                "You don't have any active applications. Send /start to begin."
+                "You don't have any active applications. Send /start to begin your worship ministry application."
             )
             return
         
@@ -322,7 +327,7 @@ Need help? Contact the admin.
             'collecting_name': "⏳ Please provide your full name",
             'collecting_address': "⏳ Please provide your address",
             'collecting_phone': "⏳ Please provide your phone number",
-            'collecting_audio': "⏳ Please upload your audio sample",
+            'collecting_audio': "⏳ Please upload your worship song sample",
             'ready_to_submit': "✅ Ready to submit - click the button in your last message"
         }
         
