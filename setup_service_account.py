@@ -1,164 +1,156 @@
 #!/usr/bin/env python3
 """
-Setup script for Google Service Account (Alternative to OAuth)
-This is more suitable for bot applications.
+Script to help set up Google service account for production deployment
 """
 
 import json
 import os
-from pathlib import Path
 
 def create_service_account_instructions():
-    """Print instructions for creating a service account"""
-    print("🔧 Setting up Google Service Account (Recommended for Bots)")
+    """Print step-by-step instructions for creating a service account"""
+    print("🔧 Google Service Account Setup Instructions")
     print("=" * 60)
     print()
     print("1. Go to Google Cloud Console:")
-    print("   https://console.cloud.google.com/")
+    print("   https://console.cloud.google.com")
     print()
-    print("2. Select your project: chenaniah")
+    print("2. Select your project (or create a new one)")
     print()
-    print("3. Go to 'APIs & Services' → 'Credentials'")
+    print("3. Enable required APIs:")
+    print("   - Go to APIs & Services → Library")
+    print("   - Search for 'Google Drive API' → Enable")
+    print("   - Search for 'Google Sheets API' → Enable")
     print()
-    print("4. Click 'Create Credentials' → 'Service Account'")
+    print("4. Create Service Account:")
+    print("   - Go to APIs & Services → Credentials")
+    print("   - Click 'Create Credentials' → 'Service Account'")
+    print("   - Fill in name: 'vocalist-bot-service'")
+    print("   - Click 'Create and Continue'")
+    print("   - Skip role assignment for now")
+    print("   - Click 'Done'")
     print()
-    print("5. Fill in the details:")
-    print("   - Service account name: vocalist-bot-service")
-    print("   - Service account ID: vocalist-bot-service")
-    print("   - Description: Service account for vocalist screening bot")
+    print("5. Create Service Account Key:")
+    print("   - Click on the created service account")
+    print("   - Go to 'Keys' tab")
+    print("   - Click 'Add Key' → 'Create new key'")
+    print("   - Select 'JSON' format")
+    print("   - Click 'Create'")
+    print("   - Download the JSON file")
     print()
-    print("6. Click 'Create and Continue'")
+    print("6. Set up Google Drive folder:")
+    print("   - Create a folder in Google Drive")
+    print("   - Right-click → Share")
+    print("   - Add the service account email (from the JSON file)")
+    print("   - Give 'Editor' permissions")
+    print("   - Copy the folder ID from the URL")
     print()
-    print("7. Skip the 'Grant access' step (click 'Continue')")
+    print("7. Set up Google Sheet:")
+    print("   - Create a new Google Sheet")
+    print("   - Right-click → Share")
+    print("   - Add the service account email")
+    print("   - Give 'Editor' permissions")
+    print("   - Copy the sheet ID from the URL")
     print()
-    print("8. Click 'Done'")
+    print("8. Set Environment Variables in Render:")
+    print("   - Go to your Render service dashboard")
+    print("   - Go to Environment tab")
+    print("   - Add these variables:")
     print()
-    print("9. Find your service account in the list and click on it")
+    print("   TELEGRAM_BOT_TOKEN=your_bot_token")
+    print("   GOOGLE_DRIVE_FOLDER_ID=your_folder_id")
+    print("   GOOGLE_SHEET_ID=your_sheet_id")
+    print("   GOOGLE_SERVICE_ACCOUNT_JSON={\"type\":\"service_account\",...}")
     print()
-    print("10. Go to 'Keys' tab")
-    print()
-    print("11. Click 'Add Key' → 'Create new key'")
-    print()
-    print("12. Choose 'JSON' format and click 'Create'")
-    print()
-    print("13. Download the JSON file and save it as 'service_account.json'")
-    print()
-    print("14. Share your Google Drive folder and Google Sheet with the service account email")
-    print("    (The email will be in the downloaded JSON file)")
-    print()
-    print("15. Update your .env file to use the service account:")
-    print("    GOOGLE_CREDENTIALS_FILE=./service_account.json")
+    print("   For GOOGLE_SERVICE_ACCOUNT_JSON:")
+    print("   - Open the downloaded JSON file")
+    print("   - Copy the entire content")
+    print("   - Paste it as the value (all on one line)")
     print()
 
-def update_google_services_for_service_account():
-    """Update google_services.py to support service account"""
-    
-    service_account_code = '''
-import os
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from config import Config
+def format_json_for_env(json_file_path):
+    """Format JSON file for environment variable"""
+    try:
+        with open(json_file_path, 'r') as f:
+            data = json.load(f)
+        
+        # Convert to single-line JSON string
+        json_string = json.dumps(data, separators=(',', ':'))
+        
+        print("📋 Formatted JSON for environment variable:")
+        print("=" * 60)
+        print("GOOGLE_SERVICE_ACCOUNT_JSON=" + json_string)
+        print()
+        print("Copy the above line and paste it as an environment variable in Render.")
+        
+        return json_string
+        
+    except FileNotFoundError:
+        print(f"❌ File not found: {json_file_path}")
+        return None
+    except json.JSONDecodeError:
+        print(f"❌ Invalid JSON file: {json_file_path}")
+        return None
 
-class GoogleDriveService:
-    def __init__(self):
-        self.service = None
-        self.credentials = None
-        self._authenticate()
-    
-    def _authenticate(self):
-        """Authenticate with Google Drive API using service account"""
-        try:
-            # Try service account first
-            if os.path.exists('service_account.json'):
-                self.credentials = service_account.Credentials.from_service_account_file(
-                    'service_account.json',
-                    scopes=Config.GOOGLE_SCOPES
-                )
-                self.service = build('drive', 'v3', credentials=self.credentials)
-                print("✅ Authenticated with service account")
-                return
-        except Exception as e:
-            print(f"Service account authentication failed: {e}")
+def validate_json_structure(json_file_path):
+    """Validate the structure of the service account JSON"""
+    try:
+        with open(json_file_path, 'r') as f:
+            data = json.load(f)
         
-        # Fallback to OAuth (original code)
-        creds = None
-        token_file = 'token.json'
+        required_fields = [
+            'type', 'project_id', 'private_key_id', 'private_key',
+            'client_email', 'client_id', 'auth_uri', 'token_uri',
+            'auth_provider_x509_cert_url', 'client_x509_cert_url'
+        ]
         
-        if os.path.exists(token_file):
-            from google.oauth2.credentials import Credentials
-            creds = Credentials.from_authorized_user_file(token_file, Config.GOOGLE_SCOPES)
+        print("🔍 Validating service account JSON structure...")
+        print("=" * 60)
         
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
+        missing_fields = []
+        for field in required_fields:
+            if field in data:
+                print(f"✅ {field}: {data[field][:50]}..." if len(str(data[field])) > 50 else f"✅ {field}: {data[field]}")
             else:
-                if not os.path.exists(Config.GOOGLE_CREDENTIALS_FILE):
-                    raise FileNotFoundError(f"Google credentials file not found: {Config.GOOGLE_CREDENTIALS_FILE}")
-                
-                from google_auth_oauthlib.flow import InstalledAppFlow
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    Config.GOOGLE_CREDENTIALS_FILE, Config.GOOGLE_SCOPES)
-                creds = flow.run_local_server(port=0)
-            
-            with open(token_file, 'w') as token:
-                token.write(creds.to_json())
+                print(f"❌ {field}: Missing")
+                missing_fields.append(field)
         
-        self.credentials = creds
-        self.service = build('drive', 'v3', credentials=creds)
+        if missing_fields:
+            print(f"\n❌ Missing required fields: {', '.join(missing_fields)}")
+            return False
+        else:
+            print("\n✅ All required fields are present!")
+            return True
+            
+    except FileNotFoundError:
+        print(f"❌ File not found: {json_file_path}")
+        return False
+    except json.JSONDecodeError:
+        print(f"❌ Invalid JSON file: {json_file_path}")
+        return False
 
-class GoogleSheetsService:
-    def __init__(self):
-        self.service = None
-        self.credentials = None
-        self._authenticate()
+def main():
+    """Main function"""
+    print("🚀 Google Service Account Setup Helper")
+    print("=" * 60)
+    print()
     
-    def _authenticate(self):
-        """Authenticate with Google Sheets API using service account"""
-        try:
-            # Try service account first
-            if os.path.exists('service_account.json'):
-                self.credentials = service_account.Credentials.from_service_account_file(
-                    'service_account.json',
-                    scopes=Config.GOOGLE_SCOPES
-                )
-                self.service = build('sheets', 'v4', credentials=self.credentials)
-                print("✅ Authenticated with service account")
-                return
-        except Exception as e:
-            print(f"Service account authentication failed: {e}")
-        
-        # Fallback to OAuth (original code)
-        creds = None
-        token_file = 'token.json'
-        
-        if os.path.exists(token_file):
-            from google.oauth2.credentials import Credentials
-            creds = Credentials.from_authorized_user_file(token_file, Config.GOOGLE_SCOPES)
-        
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                if not os.path.exists(Config.GOOGLE_CREDENTIALS_FILE):
-                    raise FileNotFoundError(f"Google credentials file not found: {Config.GOOGLE_CREDENTIALS_FILE}")
-                
-                from google_auth_oauthlib.flow import InstalledAppFlow
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    Config.GOOGLE_CREDENTIALS_FILE, Config.GOOGLE_SCOPES)
-                creds = flow.run_local_server(port=0)
-            
-            with open(token_file, 'w') as token:
-                token.write(creds.to_json())
-        
-        self.credentials = creds
-        self.service = build('sheets', 'v4', credentials=creds)
-'''
+    # Check if JSON file exists
+    json_files = [f for f in os.listdir('.') if f.endswith('.json') and 'service' in f.lower()]
     
-    print("📝 Service account code prepared")
-    print("This will be integrated into google_services.py")
+    if json_files:
+        print(f"📁 Found JSON files: {', '.join(json_files)}")
+        print()
+        
+        for json_file in json_files:
+            print(f"🔍 Checking {json_file}...")
+            if validate_json_structure(json_file):
+                print(f"\n📋 Formatting {json_file} for environment variable...")
+                format_json_for_env(json_file)
+                break
+    else:
+        print("📁 No service account JSON files found in current directory")
+        print()
+        create_service_account_instructions()
 
 if __name__ == "__main__":
-    create_service_account_instructions()
-    print("\n" + "=" * 60)
-    print("Would you like to proceed with service account setup?")
-    print("This is the recommended approach for bot applications.")
+    main()

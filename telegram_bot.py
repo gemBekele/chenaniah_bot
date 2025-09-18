@@ -352,7 +352,11 @@ Need help? Contact our ministry team.
         
         # Start the bot
         logger.info("Starting Vocalist Screening Bot...")
-        self.application.run_polling()
+        try:
+            self.application.run_polling(drop_pending_updates=True)
+        except Exception as e:
+            logger.error(f"Error running bot: {e}")
+            raise
 
 if __name__ == "__main__":
     bot = VocalistScreeningBot()

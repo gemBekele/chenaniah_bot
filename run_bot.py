@@ -119,6 +119,8 @@ class BotRunner:
             logger.info("Bot stopped by user")
         except Exception as e:
             logger.error(f"Bot crashed: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             sys.exit(1)
         finally:
             logger.info("Bot shutdown complete")

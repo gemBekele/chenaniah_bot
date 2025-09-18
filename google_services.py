@@ -21,7 +21,21 @@ class GoogleDriveService:
             # Try service account from environment variable first (recommended for production)
             if Config.GOOGLE_SERVICE_ACCOUNT_JSON:
                 import json
-                service_account_info = json.loads(Config.GOOGLE_SERVICE_ACCOUNT_JSON)
+                try:
+                    service_account_info = json.loads(Config.GOOGLE_SERVICE_ACCOUNT_JSON)
+                except json.JSONDecodeError as e:
+                    print(f"❌ Invalid JSON in GOOGLE_SERVICE_ACCOUNT_JSON: {e}")
+                    print("💡 Make sure the JSON is properly formatted and on one line")
+                    raise
+                
+                # Validate required fields
+                required_fields = ['type', 'project_id', 'private_key', 'client_email', 'token_uri']
+                missing_fields = [field for field in required_fields if field not in service_account_info]
+                if missing_fields:
+                    print(f"❌ Missing required fields in service account JSON: {missing_fields}")
+                    print("💡 Run 'python fix_credentials.py' to diagnose the issue")
+                    raise ValueError(f"Missing fields: {missing_fields}")
+                
                 self.credentials = service_account.Credentials.from_service_account_info(
                     service_account_info,
                     scopes=Config.GOOGLE_SCOPES
@@ -124,7 +138,21 @@ class GoogleSheetsService:
             # Try service account from environment variable first (recommended for production)
             if Config.GOOGLE_SERVICE_ACCOUNT_JSON:
                 import json
-                service_account_info = json.loads(Config.GOOGLE_SERVICE_ACCOUNT_JSON)
+                try:
+                    service_account_info = json.loads(Config.GOOGLE_SERVICE_ACCOUNT_JSON)
+                except json.JSONDecodeError as e:
+                    print(f"❌ Invalid JSON in GOOGLE_SERVICE_ACCOUNT_JSON: {e}")
+                    print("💡 Make sure the JSON is properly formatted and on one line")
+                    raise
+                
+                # Validate required fields
+                required_fields = ['type', 'project_id', 'private_key', 'client_email', 'token_uri']
+                missing_fields = [field for field in required_fields if field not in service_account_info]
+                if missing_fields:
+                    print(f"❌ Missing required fields in service account JSON: {missing_fields}")
+                    print("💡 Run 'python fix_credentials.py' to diagnose the issue")
+                    raise ValueError(f"Missing fields: {missing_fields}")
+                
                 self.credentials = service_account.Credentials.from_service_account_info(
                     service_account_info,
                     scopes=Config.GOOGLE_SCOPES
