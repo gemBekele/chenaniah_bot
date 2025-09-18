@@ -460,6 +460,7 @@ Need help? Contact our ministry team.
         # Start the bot
         logger.info("Starting Vocalist Screening Bot...")
         try:
+            # The run_polling method already handles webhook cleanup
             self.application.run_polling(drop_pending_updates=True)
         except Exception as e:
             logger.error(f"Error running bot: {e}")
