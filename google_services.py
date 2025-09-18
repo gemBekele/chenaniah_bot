@@ -90,10 +90,14 @@ class GoogleDriveService:
                               mime_type: str = 'audio/mpeg') -> str:
         """Upload audio file to Google Drive and return shareable link"""
         try:
+            # Check if we're using a shared drive
+            folder_id = Config.GOOGLE_DRIVE_FOLDER_ID
+            is_shared_drive = self._is_shared_drive(folder_id)
+            
             # Create file metadata
             file_metadata = {
                 'name': filename,
-                'parents': [Config.GOOGLE_DRIVE_FOLDER_ID]
+                'parents': [folder_id]
             }
             
             # Create media upload
@@ -103,18 +107,35 @@ class GoogleDriveService:
                 resumable=True
             )
             
-            # Upload file
-            file = self.service.files().create(
-                body=file_metadata,
-                media_body=media,
-                fields='id,webViewLink,webContentLink'
-            ).execute()
+            # Upload file with appropriate parameters
+            if is_shared_drive:
+                # For shared drives, we need to specify supportsAllDrives=True
+                file = self.service.files().create(
+                    body=file_metadata,
+                    media_body=media,
+                    fields='id,webViewLink,webContentLink',
+                    supportsAllDrives=True
+                ).execute()
+            else:
+                # For regular folders, try to upload but this will likely fail
+                file = self.service.files().create(
+                    body=file_metadata,
+                    media_body=media,
+                    fields='id,webViewLink,webContentLink'
+                ).execute()
             
             # Make file publicly viewable
-            self.service.permissions().create(
-                fileId=file['id'],
-                body={'role': 'reader', 'type': 'anyone'}
-            ).execute()
+            if is_shared_drive:
+                self.service.permissions().create(
+                    fileId=file['id'],
+                    body={'role': 'reader', 'type': 'anyone'},
+                    supportsAllDrives=True
+                ).execute()
+            else:
+                self.service.permissions().create(
+                    fileId=file['id'],
+                    body={'role': 'reader', 'type': 'anyone'}
+                ).execute()
             
             # Return the file ID for flexible link generation
             file_id = file['id']
@@ -125,6 +146,20 @@ class GoogleDriveService:
         except Exception as e:
             print(f"Error uploading to Google Drive: {e}")
             raise
+    
+    def _is_shared_drive(self, folder_id: str) -> bool:
+        """Check if the folder ID belongs to a shared drive"""
+        try:
+            # Try to get the folder info with supportsAllDrives
+            folder = self.service.files().get(
+                fileId=folder_id,
+                supportsAllDrives=True
+            ).execute()
+            
+            # Check if it's in a shared drive
+            return 'driveId' in folder
+        except:
+            return False
 
 class GoogleSheetsService:
     def __init__(self):
