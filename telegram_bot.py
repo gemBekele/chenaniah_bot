@@ -182,8 +182,38 @@ Please send me your **full name**:
             
         except Exception as e:
             logger.error(f"Error processing audio: {e}")
+            
+            # Provide specific error messages based on the error type
+            if "insufficientParentPermissions" in str(e):
+                error_message = (
+                    "❌ **Google Drive Permission Error**\n\n"
+                    "The bot doesn't have permission to upload files to the Google Drive folder. "
+                    "Please contact the administrator to fix this issue.\n\n"
+                    "In the meantime, you can still submit your application without the audio file."
+                )
+            elif "HttpError 403" in str(e):
+                error_message = (
+                    "❌ **Google Drive Access Denied**\n\n"
+                    "There's an issue with Google Drive access. Please contact the administrator.\n\n"
+                    "You can still submit your application without the audio file."
+                )
+            else:
+                error_message = (
+                    "❌ Sorry, there was an error processing your audio file. Please try again.\n\n"
+                    "If the problem persists, you can still submit your application without the audio file."
+                )
+            
+            # Show error message with fallback option
+            keyboard = [
+                [InlineKeyboardButton("📝 Submit Without Audio", callback_data="submit_without_audio")],
+                [InlineKeyboardButton("🔄 Try Again", callback_data="retry_audio")]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
             await update.message.reply_text(
-                "❌ Sorry, there was an error processing your audio file. Please try again."
+                error_message + "\n\n**What would you like to do?**",
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=reply_markup
             )
     
     async def handle_callback_query(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -198,6 +228,10 @@ Please send me your **full name**:
             await self.submit_application(query, user_id)
         elif data == "cancel_application":
             await self.cancel_application(query, user_id)
+        elif data == "submit_without_audio":
+            await self.submit_without_audio(query, user_id)
+        elif data == "retry_audio":
+            await self.retry_audio(query, user_id)
     
     async def submit_application(self, query, user_id: int):
         """Submit the application"""
@@ -255,6 +289,66 @@ Please send me your **full name**:
         await self.db.reset_user_state(user_id)
         await query.edit_message_text(
             "❌ Application cancelled. Send /start to begin again anytime."
+        )
+    
+    async def submit_without_audio(self, query, user_id: int):
+        """Submit application without audio"""
+        try:
+            # Get user data
+            user_data = await self.db.get_user_state(user_id)
+            if not user_data:
+                await query.edit_message_text("❌ No application data found. Please start over with /start")
+                return
+            
+            # Create submission in database without audio
+            submission_id = await self.db.create_submission(
+                user_id=user_id,
+                name=user_data.get('name'),
+                address=user_data.get('address'),
+                phone=user_data.get('phone'),
+                telegram_username=user_data.get('username'),
+                audio_drive_link=None  # No audio file
+            )
+            
+            # Add to Google Sheets without audio
+            await self.sheets_service.add_submission(
+                name=user_data.get('name'),
+                address=user_data.get('address'),
+                phone=user_data.get('phone'),
+                telegram_username=user_data.get('username'),
+                audio_link="No audio file provided"
+            )
+            
+            # Reset user state
+            await self.db.reset_user_state(user_id)
+            
+            # Send confirmation
+            await query.edit_message_text(
+                f"🎉 **Application Submitted Successfully!**\n\n"
+                f"Thank you, {user_data.get('name')}! Your worship ministry application has been submitted.\n\n"
+                f"**Note:** No audio file was included due to technical issues.\n"
+                f"Our team will review your submission and contact you!\n\n"
+                f"**Application ID:** #{submission_id}\n"
+                f"**Submitted at:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+                f"May God bless your heart for worship! 🙏",
+                parse_mode=ParseMode.MARKDOWN
+            )
+            
+        except Exception as e:
+            logger.error(f"Error submitting application without audio: {e}")
+            await query.edit_message_text(
+                "❌ Sorry, there was an error submitting your application. Please try again later."
+            )
+    
+    async def retry_audio(self, query, user_id: int):
+        """Retry audio upload"""
+        await query.edit_message_text(
+            "🔄 Please try uploading your worship song sample again.\n\n"
+            "You can either:\n"
+            "• Record a worship song directly\n"
+            "• Upload an audio file of you singing (not more than 2MB in size)\n\n"
+            "Please share a clear recording of you singing a worship song!",
+            parse_mode=ParseMode.MARKDOWN
         )
     
     async def notify_reviewers(self, user_data: dict, submission_id: int):
@@ -334,6 +428,16 @@ Need help? Contact our ministry team.
         message = status_messages.get(state, "Unknown status")
         await update.message.reply_text(message)
     
+    async def error_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle errors"""
+        logger.error(f"Update {update} caused error {context.error}")
+        
+        # Send user-friendly error message
+        if update and update.effective_message:
+            await update.effective_message.reply_text(
+                "❌ Sorry, something went wrong. Please try again or contact support if the issue persists."
+            )
+
     def run(self):
         """Run the bot"""
         if not Config.TELEGRAM_BOT_TOKEN:
@@ -341,6 +445,9 @@ Need help? Contact our ministry team.
         
         # Create application
         self.application = Application.builder().token(Config.TELEGRAM_BOT_TOKEN).build()
+        
+        # Add error handler
+        self.application.add_error_handler(self.error_handler)
         
         # Add handlers
         self.application.add_handler(CommandHandler("start", self.start_command))
