@@ -60,14 +60,17 @@ class BotRunner:
         if not Config.GOOGLE_SHEET_ID:
             missing_config.append("GOOGLE_SHEET_ID")
         
-        if not Path(Config.GOOGLE_CREDENTIALS_FILE).exists():
-            missing_config.append(f"Google credentials file: {Config.GOOGLE_CREDENTIALS_FILE}")
+        # Check for Google credentials (either service account JSON or credentials file)
+        if not Config.GOOGLE_SERVICE_ACCOUNT_JSON and not Path(Config.GOOGLE_CREDENTIALS_FILE).exists():
+            missing_config.append(f"Google credentials: Either GOOGLE_SERVICE_ACCOUNT_JSON environment variable or {Config.GOOGLE_CREDENTIALS_FILE} file required")
         
         if missing_config:
             logger.error("Missing required configuration:")
             for config in missing_config:
                 logger.error(f"  - {config}")
             logger.error("Please check your .env file and credentials.json")
+            logger.error("For production deployment, consider using GOOGLE_SERVICE_ACCOUNT_JSON environment variable")
+            logger.error("Run 'python setup_service_account_env.py' for setup instructions")
             return False
         
         return True

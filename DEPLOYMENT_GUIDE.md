@@ -71,9 +71,22 @@ Add these environment variables in Render:
 | `DATABASE_PATH` | `./data/vocalist_screening.db` | Database path |
 | `REVIEWER_TELEGRAM_CHAT_ID` | `your_chat_id` | Optional: Reviewer notifications |
 | `REVIEWER_EMAIL` | `reviewer@example.com` | Optional: Email notifications |
-| `GOOGLE_CREDENTIALS_FILE` | `./credentials.json` | Google credentials path |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | `{"type":"service_account",...}` | **Recommended**: Service account JSON as string |
+| `GOOGLE_CREDENTIALS_FILE` | `./credentials.json` | **Alternative**: Path to credentials file |
 
-### **2.4 Upload Google Credentials**
+### **2.4 Set Up Google Credentials**
+
+**Option A: Service Account (Recommended for Production)**
+1. **Go to [Google Cloud Console](https://console.cloud.google.com)**
+2. **Navigate to APIs & Services → Credentials**
+3. **Click "Create Credentials" → "Service Account"**
+4. **Fill in service account details and create**
+5. **Click on the created service account**
+6. **Go to "Keys" tab → "Add Key" → "Create new key" → "JSON"**
+7. **Download the JSON file**
+8. **Copy the entire JSON content and paste it as the value for `GOOGLE_SERVICE_ACCOUNT_JSON` environment variable in Render**
+
+**Option B: OAuth Credentials (Alternative)**
 1. **Go to your service dashboard**
 2. **Click "Files" tab**
 3. **Upload `credentials.json`** to the root directory
@@ -136,9 +149,11 @@ Make sure these APIs are enabled:
 - Check logs for errors
 
 **2. Google API Errors**
-- Verify `credentials.json` is uploaded
+- **Service Account**: Verify `GOOGLE_SERVICE_ACCOUNT_JSON` is set correctly
+- **OAuth**: Verify `credentials.json` is uploaded
 - Check Google Cloud project settings
 - Ensure APIs are enabled
+- Verify service account has proper permissions
 
 **3. Database Issues**
 - Check `DATABASE_PATH` is correct

@@ -18,17 +18,32 @@ class GoogleDriveService:
     def _authenticate(self):
         """Authenticate with Google Drive API"""
         try:
-            # Try service account first (recommended for bots)
+            # Try service account from environment variable first (recommended for production)
+            if Config.GOOGLE_SERVICE_ACCOUNT_JSON:
+                import json
+                service_account_info = json.loads(Config.GOOGLE_SERVICE_ACCOUNT_JSON)
+                self.credentials = service_account.Credentials.from_service_account_info(
+                    service_account_info,
+                    scopes=Config.GOOGLE_SCOPES
+                )
+                self.service = build('drive', 'v3', credentials=self.credentials)
+                print("✅ Authenticated with service account from environment")
+                return
+        except Exception as e:
+            print(f"Service account from environment failed: {e}")
+        
+        try:
+            # Try service account from file (fallback)
             if os.path.exists('service_account.json'):
                 self.credentials = service_account.Credentials.from_service_account_file(
                     'service_account.json',
                     scopes=Config.GOOGLE_SCOPES
                 )
                 self.service = build('drive', 'v3', credentials=self.credentials)
-                print("✅ Authenticated with service account")
+                print("✅ Authenticated with service account from file")
                 return
         except Exception as e:
-            print(f"Service account authentication failed: {e}")
+            print(f"Service account from file failed: {e}")
         
         # Fallback to OAuth
         creds = None
@@ -106,17 +121,32 @@ class GoogleSheetsService:
     def _authenticate(self):
         """Authenticate with Google Sheets API"""
         try:
-            # Try service account first (recommended for bots)
+            # Try service account from environment variable first (recommended for production)
+            if Config.GOOGLE_SERVICE_ACCOUNT_JSON:
+                import json
+                service_account_info = json.loads(Config.GOOGLE_SERVICE_ACCOUNT_JSON)
+                self.credentials = service_account.Credentials.from_service_account_info(
+                    service_account_info,
+                    scopes=Config.GOOGLE_SCOPES
+                )
+                self.service = build('sheets', 'v4', credentials=self.credentials)
+                print("✅ Authenticated with service account from environment")
+                return
+        except Exception as e:
+            print(f"Service account from environment failed: {e}")
+        
+        try:
+            # Try service account from file (fallback)
             if os.path.exists('service_account.json'):
                 self.credentials = service_account.Credentials.from_service_account_file(
                     'service_account.json',
                     scopes=Config.GOOGLE_SCOPES
                 )
                 self.service = build('sheets', 'v4', credentials=self.credentials)
-                print("✅ Authenticated with service account")
+                print("✅ Authenticated with service account from file")
                 return
         except Exception as e:
-            print(f"Service account authentication failed: {e}")
+            print(f"Service account from file failed: {e}")
         
         # Fallback to OAuth
         creds = None

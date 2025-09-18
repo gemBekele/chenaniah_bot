@@ -24,6 +24,7 @@ class Config:
     
     # Google API Credentials
     GOOGLE_CREDENTIALS_FILE = os.getenv('GOOGLE_CREDENTIALS_FILE', './credentials.json')
+    GOOGLE_SERVICE_ACCOUNT_JSON = os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')
     
     # Scopes for Google APIs
     GOOGLE_SCOPES = [
