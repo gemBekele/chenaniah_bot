@@ -25,6 +25,7 @@ class Database:
                     name TEXT,
                     address TEXT,
                     phone TEXT,
+                    church TEXT,
                     audio_file_id TEXT,
                     audio_drive_link TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -40,6 +41,7 @@ class Database:
                     name TEXT NOT NULL,
                     address TEXT NOT NULL,
                     phone TEXT NOT NULL,
+                    church TEXT NOT NULL,
                     telegram_username TEXT,
                     audio_drive_link TEXT NOT NULL,
                     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -85,15 +87,15 @@ class Database:
             conn.commit()
     
     async def create_submission(self, user_id: int, name: str, address: str, 
-                              phone: str, telegram_username: str, audio_drive_link: str) -> int:
+                              phone: str, church: str, telegram_username: str, audio_drive_link: str) -> int:
         """Create a new submission record"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 INSERT INTO submissions 
-                (user_id, name, address, phone, telegram_username, audio_drive_link)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (user_id, name, address, phone, telegram_username, audio_drive_link))
+                (user_id, name, address, phone, church, telegram_username, audio_drive_link)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (user_id, name, address, phone, church, telegram_username, audio_drive_link))
             
             submission_id = cursor.lastrowid
             conn.commit()

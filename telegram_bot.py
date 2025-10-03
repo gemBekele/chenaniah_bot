@@ -57,7 +57,8 @@ To help us get to know you better, I'll need to collect some information:
 1. Your full name
 2. Your address  
 3. Your phone number
-4. Your worship song sample
+4. Your local church
+5. Your worship song sample
 
 Let's begin! 
 
@@ -85,6 +86,8 @@ Please send me your **full name**:
             await self.handle_address_input(update, text, user_id)
         elif current_state == 'collecting_phone':
             await self.handle_phone_input(update, text, user_id)
+        elif current_state == 'collecting_church':
+            await self.handle_church_input(update, text, user_id)
         else:
             await update.message.reply_text("Please start the process by sending /start\nእባክዎ ሂደቱን ለመጀመር /start ይላኩ")
     
@@ -112,10 +115,30 @@ Please send me your **full name**:
     
     async def handle_phone_input(self, update: Update, text: str, user_id: int):
         """Handle phone input"""
-        await self.db.update_user_state(user_id, phone=text, state='collecting_audio')
+        await self.db.update_user_state(user_id, phone=text, state='collecting_church')
         
         await update.message.reply_text(
             f"Excellent! Phone number recorded.\n\n"
+            "Now please tell me your **local church** (the church where you worship):\n"
+            "ህብረት የሚያደርጉበትን ቤተክርስቲያን ያሳውቁን",
+            parse_mode=ParseMode.MARKDOWN
+        )
+    
+    async def handle_church_input(self, update: Update, text: str, user_id: int):
+        """Handle church input"""
+        # Validate church name (at least 3 characters)
+        if len(text.strip()) < 3:
+            await update.message.reply_text(
+                "❌ Please enter a valid church name (at least 3 characters).\n"
+                "❌ እባክዎ ትክክለኛ የቤተክርስቲያን ስም ያስገቡ (ቢያንስ 3 ፊደላት)።",
+                parse_mode=ParseMode.MARKDOWN
+            )
+            return
+        
+        await self.db.update_user_state(user_id, church=text, state='collecting_audio')
+        
+        await update.message.reply_text(
+            f"Perfect! Church recorded.\n\n"
             "Now please send me your **worship song sample** (voice note or music file).\n"
             "ድምጽዎን ለመለየት እንዲጠቅመን እባክዎ እዚሁ በመዘመር የድምፅ መልዕክት ይላኩ\n\n"
             "You can either:\n"
@@ -195,6 +218,7 @@ Please send me your **full name**:
                 f"Name: {user_data.get('name')}\n"
                 f"Address: {user_data.get('address')}\n"
                 f"Phone: {user_data.get('phone')}\n"
+                f"Church: {user_data.get('church')}\n"
                 f"Worship Sample: [Preview Audio]({audio_view_link})\n\n"
                 f"Click 'Submit to Ministry' to complete your application:\n"
                 f"አመልካችንን ለማጠናቀቅ 'Submit to Ministry' ይጫኑ:",
@@ -276,6 +300,7 @@ Please send me your **full name**:
                 name=user_data.get('name'),
                 address=user_data.get('address'),
                 phone=user_data.get('phone'),
+                church=user_data.get('church'),
                 telegram_username=user_data.get('username'),
                 audio_drive_link=user_data.get('audio_drive_link')
             )
@@ -285,6 +310,7 @@ Please send me your **full name**:
                 name=user_data.get('name'),
                 address=user_data.get('address'),
                 phone=user_data.get('phone'),
+                church=user_data.get('church'),
                 telegram_username=user_data.get('username'),
                 audio_link=user_data.get('audio_drive_link')
             )
@@ -409,6 +435,7 @@ Need help? Contact our ministry team.
             'collecting_name': "⏳ Please provide your full name\nእባክዎ ሙሉ ስምዎትን ይንገሩን",
             'collecting_address': "⏳ Please provide your address\nየመኖርያ አድራሻዎን ይንገሩን",
             'collecting_phone': "⏳ Please provide your phone number\nለመገኘት የሚችሉቡትን የስልክ ቁጥርዎን ያስገቡ",
+            'collecting_church': "⏳ Please provide your local church\nህብረት የሚያደርጉበትን ቤተክርስቲያን ያሳውቁን",
             'collecting_audio': "⏳ Please upload your worship song sample\nየህብረት ድምፅ ናሙናዎን እባክዎ ይላኩ",
             'ready_to_submit': "✅ Ready to submit - click the button in your last message\n✅ ለመላክ ዝግጁ - በመጨረሻው መልዕክትዎ ውስጥ ያለውን ቁልፍ ይጫኑ"
         }

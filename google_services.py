@@ -238,7 +238,7 @@ class GoogleSheetsService:
         self.credentials = creds
         self.service = build('sheets', 'v4', credentials=creds)
     
-    async def add_submission(self, name: str, address: str, phone: str, 
+    async def add_submission(self, name: str, address: str, phone: str, church: str,
                            telegram_username: str, audio_link: str) -> None:
         """Add a new submission to Google Sheets"""
         try:
@@ -260,6 +260,7 @@ class GoogleSheetsService:
                     name,
                     address,
                     phone,
+                    church,
                     f"https://t.me/{telegram_username}" if telegram_username else "No username",
                     view_link,  # Direct link, no formula
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
