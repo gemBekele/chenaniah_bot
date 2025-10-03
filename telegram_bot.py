@@ -9,7 +9,6 @@ from telegram.constants import ParseMode
 from config import Config
 from database import Database
 from google_services import GoogleDriveService, GoogleSheetsService
-from local_storage_service import LocalStorageService
 
 # Configure logging
 logging.basicConfig(
@@ -23,7 +22,6 @@ class VocalistScreeningBot:
         self.db = Database()
         self.drive_service = GoogleDriveService()
         self.sheets_service = GoogleSheetsService()
-        self.local_storage = LocalStorageService()
         self.application = None
     
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -177,23 +175,12 @@ Let's begin!
             username = user_data.get('username', 'user')
             filename = f"worship_sample_{username}_{timestamp}.mp3"
             
-            # Try Google Drive first, fallback to local storage
-            try:
-                file_id = await self.drive_service.upload_audio_file(
-                    file_data, filename, audio.mime_type or 'audio/mpeg'
-                )
-                # Create a viewable link for display
-                audio_view_link = f"https://drive.google.com/file/d/{file_id}/view"
-                storage_type = "google_drive"
-            except Exception as drive_error:
-                logger.warning(f"Google Drive upload failed, using local storage: {drive_error}")
-                # Fallback to local storage
-                file_id = await self.local_storage.upload_audio_file(
-                    file_data, filename, audio.mime_type or 'audio/mpeg'
-                )
-                # Create a local file URL
-                audio_view_link = self.local_storage.get_file_url(file_id)
-                storage_type = "local"
+            # Upload to Google Drive only (no local storage)
+            file_id = await self.drive_service.upload_audio_file(
+                file_data, filename, audio.mime_type or 'audio/mpeg'
+            )
+            # Create a viewable link for display
+            audio_view_link = f"https://drive.google.com/file/d/{file_id}/view"
             
             # Update user state with audio info
             await self.db.update_user_state(
@@ -227,26 +214,38 @@ Let's begin!
             )
             
         except Exception as e:
-            logger.error(f"Error processing audio: {e}")
+            logger.error(f"Error uploading audio to Google Drive: {e}")
             
             # Provide specific error messages based on the error type
-            if "insufficientParentPermissions" in str(e):
+            if "storageQuotaExceeded" in str(e) or "Service Accounts do not have storage quota" in str(e):
+                error_message = (
+                    "❌ **Google Drive Storage Error**\n"
+                    "❌ **የጉግል ድራይቭ ማከማቻ ስህተት**\n\n"
+                    "There's an issue with Google Drive storage. Please contact the administrator.\n"
+                    "የጉግል ድራይቭ ማከማቻ ችግር አለ። እባክዎ አስተዳዳሪውን ያግኙ።\n\n"
+                    "**Your audio file is required for the application.**\n"
+                    "**የድምፅ ፋይልዎ ለአመልካቹ ያስፈልጋል።**"
+                )
+            elif "insufficientParentPermissions" in str(e):
                 error_message = (
                     "❌ **Google Drive Permission Error**\n"
-                    "The bot doesn't have permission to upload files to the Google Drive folder. "
-                    "Please contact the administrator to fix this issue.\n"
-                    "**Audio files are required for your application.** Please try again once the issue is resolved.\n"
+                    "❌ **የጉግል ድራይቭ ፈቃድ ስህተት**\n\n"
+                    "The bot doesn't have permission to upload files. Please contact the administrator.\n"
+                    "ቦቱ ፋይሎችን ለመላክ ፈቃድ የለውም። እባክዎ አስተዳዳሪውን ያግኙ።"
                 )
             elif "HttpError 403" in str(e):
                 error_message = (
                     "❌ **Google Drive Access Denied**\n"
+                    "❌ **የጉግል ድራይቭ መድረሻ ተከልክሏል**\n\n"
                     "There's an issue with Google Drive access. Please contact the administrator.\n"
-                    "**Audio files are required for your application.** Please try again once the issue is resolved.\n"
+                    "የጉግል ድራይቭ መድረሻ ችግር አለ። እባክዎ አስተዳዳሪውን ያግኙ።"
                 )
             else:
                 error_message = (
-                    "❌ Sorry, there was an error processing your audio file. Please try again.\n"
-                    "**Audio files are required for your application.** If the problem persists, please contact support.\n"
+                    "❌ Sorry, there was an error uploading your audio file. Please try again.\n"
+                    "❌ ይቅርታ፣ የድምፅ ፋይልዎን በመላክ ላይ ስህተት ተከስቷል። እባክዎ እንደገና ይሞክሩ።\n\n"
+                    "If the problem persists, please contact support.\n"
+                    "ችግሩ ካለቀቀ እባክዎ ድጋፍ ያግኙ።"
                 )
             
             # Show error message with retry option only
