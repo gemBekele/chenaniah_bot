@@ -212,7 +212,7 @@ Let's begin!
             
             await processing_msg.edit_text(
                 f"✅ Song processed successfully!\n"
-                
+                f"ድምፅ በተሳካ ሁኔታ ተሰርዟል!\n\n"
                 f"**Your Information:**\n"
                 f"**የእርስዎ መረጃ:**\n"
                 f"Name: {user_data.get('name')}\n"
@@ -221,7 +221,7 @@ Let's begin!
                 f"Church: {user_data.get('church')}\n"
                 f"Worship Sample: [Preview Audio]({audio_view_link})\n\n"
                 f"Click 'Submit to Ministry' to complete your application:\n"
-               
+                f"አመልካችንን ለማጠናቀቅ 'Submit to Ministry' ይጫኑ:",
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=reply_markup
             )
