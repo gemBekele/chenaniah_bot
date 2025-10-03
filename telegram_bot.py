@@ -311,15 +311,11 @@ Let's begin!
             # Send confirmation
             await query.edit_message_text(
                 f"🎉 **Application Submitted Successfully!**\n"
-                f"**አመልካች በተሳካ ሁኔታ ተላከ!**\n\n"
                 f"Thank you, {user_data.get('name')}! Your worship ministry application has been submitted.\n"
-                f"አመሰግናለሁ፣ {user_data.get('name')}! የህብረት አገልግሎት አመልካችዎ ተላከ።\n\n"
                 f"Our team will review your submission and contact you!\n"
-                f"ቡድናችን አመልካችዎን ያስተንትናል እና እንገናኝዎታለን!\n\n"
                 f"**Application ID:** #{submission_id}\n"
                 f"**Submitted at:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                f"May God bless your heart for worship! 🙏\n"
-                f"እግዚአብሔር ህብረት ስለሚያደርጉ ልባችሁን ይባርክ! 🙏",
+                f"May God bless you! 🙏\n",
                 parse_mode=ParseMode.MARKDOWN
             )
             
