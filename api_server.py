@@ -179,7 +179,17 @@ def serve_audio(file_path):
         if not full_path.exists():
             return jsonify({'error': 'Audio file not found'}), 404
         
-        return send_file(full_path, mimetype='audio/mpeg')
+        # Detect MIME type based on file extension
+        if file_path.lower().endswith('.mp3'):
+            mimetype = 'audio/mpeg'
+        elif file_path.lower().endswith('.ogg') or file_path.lower().endswith('.oga'):
+            mimetype = 'audio/ogg'
+        elif file_path.lower().endswith('.wav'):
+            mimetype = 'audio/wav'
+        else:
+            mimetype = 'audio/mpeg'  # Default fallback
+        
+        return send_file(full_path, mimetype=mimetype)
     except Exception as e:
         logger.error(f"Error serving audio file: {e}")
         return jsonify({'error': str(e)}), 500

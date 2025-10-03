@@ -43,6 +43,15 @@ def start_service(name, command):
         )
         processes.append(process)
         logger.info(f"{name} started with PID {process.pid}")
+        
+        # Wait a moment to see if it crashes immediately
+        time.sleep(2)
+        if process.poll() is not None:
+            output = process.stdout.read()
+            logger.error(f"{name} crashed immediately with code {process.returncode}")
+            logger.error(f"Output: {output}")
+            return None
+            
         return process
     except Exception as e:
         logger.error(f"Failed to start {name}: {e}")
