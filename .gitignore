@@ -2,10 +2,14 @@
 .env
 .env.local
 .env.production
+.env.backup
 
 # Google API credentials
-# credentials.json
-# token.json
+credentials.json
+token.json
+token.json.backup
+*.json.backup
+chenaniah-*.json
 
 # Database files
 *.db
@@ -20,6 +24,9 @@ logs/
 temp/
 tmp/
 *.tmp
+
+# Audio files (should be stored in cloud, not in git)
+audio_files/
 
 # Python
 __pycache__/

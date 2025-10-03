@@ -44,14 +44,18 @@ class VocalistScreeningBot:
         )
         
         welcome_message = f"""
-🎵 Welcome to Chenaniah Worship Ministry!
+🎵 **Welcome to Chenaniah Worship Ministry!**
+ክናንያ የህብረት መዘምራን
 
 Hi {user.first_name}! We're excited that you're interested in joining our ministry.
+እንኳን ወደ ክናንያ የህብረት መዘምራን መመዝገብያ በደህና መጡ
 
 To help us get to know you better, I'll need to collect some information:
+እባክዎ ሙሉ ስምዎትን ይንገሩን
 
+**Information needed:**
 1. Your full name
-2. Your address
+2. Your address  
 3. Your phone number
 4. Your worship song sample
 
@@ -70,7 +74,7 @@ Please send me your **full name**:
         # Get current user state
         user_data = await self.db.get_user_state(user_id)
         if not user_data:
-            await update.message.reply_text("Please start the process by sending /start")
+            await update.message.reply_text("Please start the process by sending /start\nእባክዎ ሂደቱን ለመጀመር /start ይላኩ")
             return
         
         current_state = user_data.get('state', 'idle')
@@ -82,7 +86,7 @@ Please send me your **full name**:
         elif current_state == 'collecting_phone':
             await self.handle_phone_input(update, text, user_id)
         else:
-            await update.message.reply_text("Please start the process by sending /start")
+            await update.message.reply_text("Please start the process by sending /start\nእባክዎ ሂደቱን ለመጀመር /start ይላኩ")
     
     async def handle_name_input(self, update: Update, text: str, user_id: int):
         """Handle name input"""
@@ -90,7 +94,8 @@ Please send me your **full name**:
         
         await update.message.reply_text(
             f"Great! Thanks, {text}.\n\n"
-            "Now please send me your **address**:",
+            "Now please send me your **address**:\n"
+            "የመኖርያ አድራሻዎን ይንገሩን",
             parse_mode=ParseMode.MARKDOWN
         )
     
@@ -100,7 +105,8 @@ Please send me your **full name**:
         
         await update.message.reply_text(
             f"Perfect! Address recorded.\n\n"
-            "Now please send me your **phone number**:",
+            "Now please send me your **phone number**:\n"
+            "ለመገኘት የሚችሉቡትን የስልክ ቁጥርዎን ያስገቡ",
             parse_mode=ParseMode.MARKDOWN
         )
     
@@ -110,10 +116,11 @@ Please send me your **full name**:
         
         await update.message.reply_text(
             f"Excellent! Phone number recorded.\n\n"
-            "Now please send me your **worship song sample** (voice note or music file).\n\n"
+            "Now please send me your **worship song sample** (voice note or music file).\n"
+            "ድምጽዎን ለመለየት እንዲጠቅመን እባክዎ እዚሁ በመዘመር የድምፅ መልዕክት ይላኩ\n\n"
             "You can either:\n"
             "• Record a worship song directly\n"
-            "• Upload an audio file of you singing ( not more than 2MB in size )\n\n"
+            "• Upload an audio file of you singing (not more than 2MB in size)\n\n"
             "Please share a clear recording of you singing a worship song!",
             parse_mode=ParseMode.MARKDOWN
         )
@@ -125,18 +132,18 @@ Please send me your **full name**:
         # Get current user state
         user_data = await self.db.get_user_state(user_id)
         if not user_data or user_data.get('state') != 'collecting_audio':
-            await update.message.reply_text("Please complete the previous steps first by sending /start")
+            await update.message.reply_text("Please complete the previous steps first by sending /start\nእባክዎ ቀደም ያሉትን ደረጃዎች በመጀመር ይጠናቀቁ /start በመላክ")
             return
         
         # Get audio file
         audio = update.message.audio or update.message.voice
         if not audio:
-            await update.message.reply_text("Please send an audio file or voice message.")
+            await update.message.reply_text("Please send an audio file or voice message.\nእባክዎ የድምፅ ፋይል ወይም የድምፅ መልዕክት ይላኩ።")
             return
         
         try:
             # Show processing message
-            processing_msg = await update.message.reply_text("🔄 Processing your worship song...")
+            processing_msg = await update.message.reply_text("🔄 Processing your worship song...\nየህብረት ድምፅዎን እያሰራ...")
             
             # Get file from Telegram
             file = await context.bot.get_file(audio.file_id)
@@ -181,13 +188,16 @@ Please send me your **full name**:
             reply_markup = InlineKeyboardMarkup(keyboard)
             
             await processing_msg.edit_text(
-                f"✅ Song processed successfully!\n\n"
+                f"✅ Song processed successfully!\n"
+                f"ድምፅ በተሳካ ሁኔታ ተሰርዟል!\n\n"
                 f"**Your Information:**\n"
+                f"**የእርስዎ መረጃ:**\n"
                 f"Name: {user_data.get('name')}\n"
                 f"Address: {user_data.get('address')}\n"
                 f"Phone: {user_data.get('phone')}\n"
                 f"Worship Sample: [Preview Audio]({audio_view_link})\n\n"
-                f"Click 'Submit to Ministry' to complete your application:",
+                f"Click 'Submit to Ministry' to complete your application:\n"
+                f"አመልካችንን ለማጠናቀቅ 'Submit to Ministry' ይጫኑ:",
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=reply_markup
             )
@@ -198,21 +208,30 @@ Please send me your **full name**:
             # Provide specific error messages based on the error type
             if "insufficientParentPermissions" in str(e):
                 error_message = (
-                    "❌ **Google Drive Permission Error**\n\n"
+                    "❌ **Google Drive Permission Error**\n"
+                    "❌ **የጉግል ድራይቭ ፈቃድ ስህተት**\n\n"
                     "The bot doesn't have permission to upload files to the Google Drive folder. "
-                    "Please contact the administrator to fix this issue.\n\n"
-                    "**Audio files are required for your application.** Please try again once the issue is resolved."
+                    "Please contact the administrator to fix this issue.\n"
+                    "ቦቱ ፋይሎችን ወደ ጉግል ድራይቭ አቃፊ ለመላክ ፈቃድ የለውም። "
+                    "እባክዎ ይህንን ችግር ለመፍታት አስተዳዳሪውን ያግኙ።\n\n"
+                    "**Audio files are required for your application.** Please try again once the issue is resolved.\n"
+                    "**የድምፅ ፋይሎች ለአመልካችዎ ያስፈልጋሉ።** ችግሩ ከተፈታ እንደገና ይሞክሩ።"
                 )
             elif "HttpError 403" in str(e):
                 error_message = (
-                    "❌ **Google Drive Access Denied**\n\n"
-                    "There's an issue with Google Drive access. Please contact the administrator.\n\n"
-                    "**Audio files are required for your application.** Please try again once the issue is resolved."
+                    "❌ **Google Drive Access Denied**\n"
+                    "❌ **የጉግል ድራይቭ መድረሻ ተከልክሏል**\n\n"
+                    "There's an issue with Google Drive access. Please contact the administrator.\n"
+                    "የጉግል ድራይቭ መድረሻ ችግር አለ። እባክዎ አስተዳዳሪውን ያግኙ።\n\n"
+                    "**Audio files are required for your application.** Please try again once the issue is resolved.\n"
+                    "**የድምፅ ፋይሎች ለአመልካችዎ ያስፈልጋሉ።** ችግሩ ከተፈታ እንደገና ይሞክሩ።"
                 )
             else:
                 error_message = (
-                    "❌ Sorry, there was an error processing your audio file. Please try again.\n\n"
-                    "**Audio files are required for your application.** If the problem persists, please contact support."
+                    "❌ Sorry, there was an error processing your audio file. Please try again.\n"
+                    "❌ ይቅርታ፣ የድምፅ ፋይልዎን በማስተናገድ ላይ ስህተት ተከስቷል። እባክዎ እንደገና ይሞክሩ።\n\n"
+                    "**Audio files are required for your application.** If the problem persists, please contact support.\n"
+                    "**የድምፅ ፋይሎች ለአመልካችዎ ያስፈልጋሉ።** ችግሩ ካለቀቀ እባክዎ ድጋፍ ያግኙ።"
                 )
             
             # Show error message with retry option only
@@ -222,7 +241,7 @@ Please send me your **full name**:
             reply_markup = InlineKeyboardMarkup(keyboard)
             
             await update.message.reply_text(
-                error_message + "\n\n**Please try uploading your audio file again:**",
+                error_message + "\n\n**Please try uploading your audio file again:**\n**እባክዎ የድምፅ ፋይልዎን እንደገና ይላኩ:**",
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=reply_markup
             )
@@ -248,7 +267,7 @@ Please send me your **full name**:
             # Get user data
             user_data = await self.db.get_user_state(user_id)
             if not user_data or user_data.get('state') != 'ready_to_submit':
-                await query.edit_message_text("❌ No application data found. Please start over with /start")
+                await query.edit_message_text("❌ No application data found. Please start over with /start\n❌ የአመልካች መረጃ አልተገኘም። እባክዎ እንደገና ይጀምሩ /start በመላክ")
                 return
             
             # Create submission in database
@@ -275,12 +294,16 @@ Please send me your **full name**:
             
             # Send confirmation
             await query.edit_message_text(
-                f"🎉 **Application Submitted Successfully!**\n\n"
-                f"Thank you, {user_data.get('name')}! Your worship ministry application has been submitted.\n\n"
-                f"Our team will review your submission and contact you! \n\n"
+                f"🎉 **Application Submitted Successfully!**\n"
+                f"**አመልካች በተሳካ ሁኔታ ተላከ!**\n\n"
+                f"Thank you, {user_data.get('name')}! Your worship ministry application has been submitted.\n"
+                f"አመሰግናለሁ፣ {user_data.get('name')}! የህብረት አገልግሎት አመልካችዎ ተላከ።\n\n"
+                f"Our team will review your submission and contact you!\n"
+                f"ቡድናችን አመልካችዎን ያስተንትናል እና እንገናኝዎታለን!\n\n"
                 f"**Application ID:** #{submission_id}\n"
                 f"**Submitted at:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                f"May God bless your heart for worship! 🙏",
+                f"May God bless your heart for worship! 🙏\n"
+                f"እግዚአብሔር ህብረት ስለሚያደርጉ ልባችሁን ይባርክ! 🙏",
                 parse_mode=ParseMode.MARKDOWN
             )
             
@@ -290,20 +313,23 @@ Please send me your **full name**:
         except Exception as e:
             logger.error(f"Error submitting application: {e}")
             await query.edit_message_text(
-                "❌ Sorry, there was an error submitting your application. Please try again later."
+                "❌ Sorry, there was an error submitting your application. Please try again later.\n"
+                "❌ ይቅርታ፣ አመልካችዎን በማስገባት ላይ ስህተት ተከስቷል። እባክዎ ቆይተው እንደገና ይሞክሩ።"
             )
     
     async def cancel_application(self, query, user_id: int):
         """Cancel the application"""
         await self.db.reset_user_state(user_id)
         await query.edit_message_text(
-            "❌ Application cancelled. Send /start to begin again anytime."
+            "❌ Application cancelled. Send /start to begin again anytime.\n"
+            "አመልካች ተሰርዟል። በየጊዜው እንደገና ለመጀመር /start ይላኩ።"
         )
     
     async def retry_audio(self, query, user_id: int):
         """Retry audio upload"""
         await query.edit_message_text(
-            "🔄 Please try uploading your worship song sample again.\n\n"
+            "🔄 Please try uploading your worship song sample again.\n"
+            "እባክዎ የህብረት ድምፅ ናሙናዎን እንደገና ለመላክ ይሞክሩ።\n\n"
             "You can either:\n"
             "• Record a worship song directly\n"
             "• Upload an audio file of you singing (not more than 2MB in size)\n\n"
@@ -341,6 +367,7 @@ Check the Google Sheet for full details.
         """Handle /help command"""
         help_text = """
 🎵 **Chenaniah Worship Ministry Application Help**
+ክናንያ የህብረት መዘምራን አመልካች እርዳታ
 
 **Commands:**
 /start - Begin the application process
@@ -372,17 +399,18 @@ Need help? Contact our ministry team.
         
         if not user_data or user_data.get('state') == 'idle':
             await update.message.reply_text(
-                "You don't have any active applications. Send /start to begin your worship ministry application."
+                "You don't have any active applications. Send /start to begin your worship ministry application.\n"
+                "ንቁ አመልካች የለዎትም። የህብረት አገልግሎት አመልካችዎን ለመጀመር /start ይላኩ።"
             )
             return
         
         state = user_data.get('state', 'idle')
         status_messages = {
-            'collecting_name': "⏳ Please provide your full name",
-            'collecting_address': "⏳ Please provide your address",
-            'collecting_phone': "⏳ Please provide your phone number",
-            'collecting_audio': "⏳ Please upload your worship song sample",
-            'ready_to_submit': "✅ Ready to submit - click the button in your last message"
+            'collecting_name': "⏳ Please provide your full name\nእባክዎ ሙሉ ስምዎትን ይንገሩን",
+            'collecting_address': "⏳ Please provide your address\nየመኖርያ አድራሻዎን ይንገሩን",
+            'collecting_phone': "⏳ Please provide your phone number\nለመገኘት የሚችሉቡትን የስልክ ቁጥርዎን ያስገቡ",
+            'collecting_audio': "⏳ Please upload your worship song sample\nየህብረት ድምፅ ናሙናዎን እባክዎ ይላኩ",
+            'ready_to_submit': "✅ Ready to submit - click the button in your last message\n✅ ለመላክ ዝግጁ - በመጨረሻው መልዕክትዎ ውስጥ ያለውን ቁልፍ ይጫኑ"
         }
         
         message = status_messages.get(state, "Unknown status")
@@ -395,7 +423,8 @@ Need help? Contact our ministry team.
         # Send user-friendly error message
         if update and update.effective_message:
             await update.effective_message.reply_text(
-                "❌ Sorry, something went wrong. Please try again or contact support if the issue persists."
+                "❌ Sorry, something went wrong. Please try again or contact support if the issue persists.\n"
+                "❌ ይቅርታ፣ አንድ ነገር ተሳስቷል። እባክዎ እንደገና ይሞክሩ ወይም ችግሩ ካለቀቀ ድጋፍ ያግኙ።"
             )
 
     def run(self):
