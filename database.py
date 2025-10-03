@@ -43,10 +43,14 @@ class Database:
                     phone TEXT NOT NULL,
                     church TEXT NOT NULL,
                     telegram_username TEXT,
-                    audio_drive_link TEXT NOT NULL,
+                    audio_file_path TEXT NOT NULL,
+                    audio_file_size INTEGER,
+                    audio_duration REAL,
                     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     status TEXT DEFAULT 'pending',
                     reviewer_comments TEXT,
+                    reviewed_at TIMESTAMP,
+                    reviewed_by TEXT,
                     FOREIGN KEY (user_id) REFERENCES users (user_id)
                 )
             ''')
@@ -87,15 +91,19 @@ class Database:
             conn.commit()
     
     async def create_submission(self, user_id: int, name: str, address: str, 
-                              phone: str, church: str, telegram_username: str, audio_drive_link: str) -> int:
+                              phone: str, church: str, telegram_username: str, 
+                              audio_file_path: str, audio_file_size: int = 0,
+                              audio_duration: float = 0) -> int:
         """Create a new submission record"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 INSERT INTO submissions 
-                (user_id, name, address, phone, church, telegram_username, audio_drive_link)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (user_id, name, address, phone, church, telegram_username, audio_drive_link))
+                (user_id, name, address, phone, church, telegram_username, 
+                 audio_file_path, audio_file_size, audio_duration)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (user_id, name, address, phone, church, telegram_username, 
+                  audio_file_path, audio_file_size, audio_duration))
             
             submission_id = cursor.lastrowid
             conn.commit()
@@ -113,17 +121,70 @@ class Database:
             ''')
             return [dict(row) for row in cursor.fetchall()]
     
+    async def get_all_submissions(self, status: str = None, limit: int = 100, offset: int = 0) -> list:
+        """Get all submissions with optional status filter"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            if status:
+                cursor.execute('''
+                    SELECT * FROM submissions 
+                    WHERE status = ?
+                    ORDER BY submitted_at DESC
+                    LIMIT ? OFFSET ?
+                ''', (status, limit, offset))
+            else:
+                cursor.execute('''
+                    SELECT * FROM submissions 
+                    ORDER BY submitted_at DESC
+                    LIMIT ? OFFSET ?
+                ''', (limit, offset))
+            
+            return [dict(row) for row in cursor.fetchall()]
+    
+    async def get_submission_by_id(self, submission_id: int) -> Optional[Dict[str, Any]]:
+        """Get a single submission by ID"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM submissions WHERE id = ?', (submission_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+    
     async def update_submission_status(self, submission_id: int, status: str, 
-                                     reviewer_comments: str = None) -> None:
+                                     reviewer_comments: str = None,
+                                     reviewed_by: str = None) -> None:
         """Update submission status and reviewer comments"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 UPDATE submissions 
-                SET status = ?, reviewer_comments = ?
+                SET status = ?, reviewer_comments = ?, 
+                    reviewed_at = CURRENT_TIMESTAMP, reviewed_by = ?
                 WHERE id = ?
-            ''', (status, reviewer_comments, submission_id))
+            ''', (status, reviewer_comments, reviewed_by, submission_id))
             conn.commit()
+    
+    async def get_submission_stats(self) -> Dict[str, int]:
+        """Get statistics about submissions"""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected
+                FROM submissions
+            ''')
+            row = cursor.fetchone()
+            return {
+                'total': row[0] or 0,
+                'pending': row[1] or 0,
+                'approved': row[2] or 0,
+                'rejected': row[3] or 0
+            }
     
     async def reset_user_state(self, user_id: int) -> None:
         """Reset user state to idle"""

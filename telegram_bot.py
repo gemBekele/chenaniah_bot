@@ -8,7 +8,7 @@ from telegram.constants import ParseMode
 
 from config import Config
 from database import Database
-from google_services import GoogleDriveService, GoogleSheetsService
+from local_storage_service import LocalStorageService
 
 # Configure logging
 logging.basicConfig(
@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 class VocalistScreeningBot:
     def __init__(self):
         self.db = Database()
-        self.drive_service = GoogleDriveService()
-        self.sheets_service = GoogleSheetsService()
+        self.storage_service = LocalStorageService()
         self.application = None
     
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -182,11 +181,17 @@ Let's begin!
             # Create a viewable link for display
             audio_view_link = self.storage_service.get_file_url(file_path)
             
+            # Get file size
+            file_size = len(file_data)
+            
+            # Get audio duration (approximate from file size, or use actual duration if available)
+            audio_duration = getattr(audio, 'duration', 0)
+            
             # Update user state with audio info
             await self.db.update_user_state(
                 user_id,
                 audio_file_id=audio.file_id,
-                audio_drive_link=file_id,  # Store file ID for Google Sheets
+                audio_drive_link=file_path,  # Store file path for reference
                 state='ready_to_submit'
             )
             
@@ -284,6 +289,10 @@ Let's begin!
                 await query.edit_message_text("❌ No application data found. Please start over with /start")
                 return
             
+            # Get file size from stored path
+            audio_file_path = user_data.get('audio_drive_link', '')
+            file_size = self.storage_service.get_file_size(audio_file_path)
+            
             # Create submission in database
             submission_id = await self.db.create_submission(
                 user_id=user_id,
@@ -292,17 +301,9 @@ Let's begin!
                 phone=user_data.get('phone'),
                 church=user_data.get('church'),
                 telegram_username=user_data.get('username'),
-                audio_drive_link=user_data.get('audio_drive_link')
-            )
-            
-            # Add to Google Sheets
-            await self.sheets_service.add_submission(
-                name=user_data.get('name'),
-                address=user_data.get('address'),
-                phone=user_data.get('phone'),
-                church=user_data.get('church'),
-                telegram_username=user_data.get('username'),
-                audio_link=user_data.get('audio_drive_link')
+                audio_file_path=audio_file_path,
+                audio_file_size=file_size,
+                audio_duration=0  # Will be calculated if needed
             )
             
             # Reset user state
