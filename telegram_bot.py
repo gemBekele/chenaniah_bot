@@ -175,12 +175,12 @@ Let's begin!
             username = user_data.get('username', 'user')
             filename = f"worship_sample_{username}_{timestamp}.mp3"
             
-            # Upload to Google Drive only (no local storage)
-            file_id = await self.drive_service.upload_audio_file(
+            # Upload to local storage
+            file_path = await self.storage_service.upload_audio_file(
                 file_data, filename, audio.mime_type or 'audio/mpeg'
             )
             # Create a viewable link for display
-            audio_view_link = f"https://drive.google.com/file/d/{file_id}/view"
+            audio_view_link = self.storage_service.get_file_url(file_path)
             
             # Update user state with audio info
             await self.db.update_user_state(
