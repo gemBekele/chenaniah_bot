@@ -1,231 +1,648 @@
-# 🚀 Deploy Chenaniah Worship Ministry Application Bot on Render.com
+# 🚀 Complete Deployment Guide
 
-## 📋 **Prerequisites**
+## Fresh VPS Deployment - Web + Bot
 
-Before deploying, make sure you have:
-- ✅ **Render.com account** (free tier available)
-- ✅ **GitHub repository** with your bot code
-- ✅ **Google Cloud credentials** (credentials.json)
-- ✅ **Telegram Bot Token**
-- ✅ **Google Drive folder ID**
-- ✅ **Google Sheet ID**
-
-## 🔧 **Step 1: Prepare Your Repository**
-
-### **1.1 Push to GitHub**
-```bash
-# Initialize git if not already done
-git init
-git add .
-git commit -m "Initial commit: Vocalist Screening Bot"
-
-# Add your GitHub repository
-git remote add origin https://github.com/yourusername/vocalist-screening-bot.git
-git push -u origin main
-```
-
-### **1.2 Verify Required Files**
-Make sure these files are in your repository:
-- ✅ `run_bot.py` - Main bot runner
-- ✅ `telegram_bot.py` - Bot implementation
-- ✅ `google_services.py` - Google APIs integration
-- ✅ `requirements.txt` - Python dependencies
-- ✅ `render.yaml` - Render configuration
-- ✅ `Procfile` - Process definition
-- ✅ `runtime.txt` - Python version
-- ✅ `.renderignore` - Ignore files
-
-## 🌐 **Step 2: Deploy on Render.com**
-
-### **2.1 Create New Web Service**
-1. **Go to [Render.com](https://render.com)**
-2. **Click "New +" → "Web Service"**
-3. **Connect your GitHub repository**
-4. **Select your repository**
-
-### **2.2 Configure the Service**
-Fill in these details:
-
-**Basic Settings:**
-- **Name**: `vocalist-screening-bot`
-- **Environment**: `Python 3`
-- **Region**: Choose closest to your users
-- **Branch**: `main`
-- **Root Directory**: Leave empty
-- **Build Command**: `pip install -r requirements.txt`
-- **Start Command**: `python run_bot.py`
-
-**Advanced Settings:**
-- **Plan**: `Free` (or upgrade if needed)
-- **Auto-Deploy**: `Yes` (for automatic updates)
-
-### **2.3 Set Environment Variables**
-Add these environment variables in Render:
-
-| Key | Value | Description |
-|-----|-------|-------------|
-| `TELEGRAM_BOT_TOKEN` | `your_bot_token` | Your Telegram bot token |
-| `GOOGLE_DRIVE_FOLDER_ID` | `your_folder_id` | Google Drive folder ID |
-| `GOOGLE_SHEET_ID` | `your_sheet_id` | Google Sheet ID |
-| `GOOGLE_SHEET_RANGE` | `A:G` | Sheet range |
-| `DATABASE_PATH` | `./data/vocalist_screening.db` | Database path |
-| `REVIEWER_TELEGRAM_CHAT_ID` | `your_chat_id` | Optional: Reviewer notifications |
-| `REVIEWER_EMAIL` | `reviewer@example.com` | Optional: Email notifications |
-| `GOOGLE_SERVICE_ACCOUNT_JSON` | `{"type":"service_account",...}` | **Recommended**: Service account JSON as string |
-| `GOOGLE_CREDENTIALS_FILE` | `./credentials.json` | **Alternative**: Path to credentials file |
-
-### **2.4 Set Up Google Credentials**
-
-**Option A: Service Account (Recommended for Production)**
-1. **Go to [Google Cloud Console](https://console.cloud.google.com)**
-2. **Navigate to APIs & Services → Credentials**
-3. **Click "Create Credentials" → "Service Account"**
-4. **Fill in service account details and create**
-5. **Click on the created service account**
-6. **Go to "Keys" tab → "Add Key" → "Create new key" → "JSON"**
-7. **Download the JSON file**
-8. **Copy the entire JSON content and paste it as the value for `GOOGLE_SERVICE_ACCOUNT_JSON` environment variable in Render**
-
-**Option B: OAuth Credentials (Alternative)**
-1. **Go to your service dashboard**
-2. **Click "Files" tab**
-3. **Upload `credentials.json`** to the root directory
-4. **Make sure it's named exactly `credentials.json`**
-
-## 🔐 **Step 3: Google Cloud Setup**
-
-### **3.1 Update OAuth Redirect URIs**
-1. **Go to [Google Cloud Console](https://console.cloud.google.com)**
-2. **Navigate to APIs & Services → Credentials**
-3. **Edit your OAuth 2.0 Client ID**
-4. **Add authorized redirect URI:**
-   ```
-   https://your-app-name.onrender.com/oauth2callback
-   ```
-5. **Save changes**
-
-### **3.2 Test Google APIs**
-Make sure these APIs are enabled:
-- ✅ **Google Drive API**
-- ✅ **Google Sheets API**
-
-## 🚀 **Step 4: Deploy and Test**
-
-### **4.1 Deploy**
-1. **Click "Create Web Service"**
-2. **Wait for deployment** (5-10 minutes)
-3. **Check build logs** for any errors
-
-### **4.2 Test the Bot**
-1. **Find your bot on Telegram**
-2. **Send `/start` command**
-3. **Test the full submission process**
-4. **Check Google Sheet** for new entries
-
-## 📊 **Step 5: Monitor and Maintain**
-
-### **5.1 Monitor Logs**
-- **Go to your service dashboard**
-- **Click "Logs" tab**
-- **Monitor for errors or issues**
-
-### **5.2 Database Persistence**
-- **Render provides persistent disk storage**
-- **Database file is stored in `/opt/render/project/data/`**
-- **Data persists between deployments**
-
-### **5.3 Updates**
-- **Push changes to GitHub**
-- **Render automatically redeploys**
-- **No manual intervention needed**
-
-## 🔧 **Troubleshooting**
-
-### **Common Issues:**
-
-**1. Bot Not Responding**
-- Check `TELEGRAM_BOT_TOKEN` is correct
-- Verify bot is not blocked
-- Check logs for errors
-
-**2. Google API Errors**
-- **Service Account**: Verify `GOOGLE_SERVICE_ACCOUNT_JSON` is set correctly
-- **OAuth**: Verify `credentials.json` is uploaded
-- Check Google Cloud project settings
-- Ensure APIs are enabled
-- Verify service account has proper permissions
-
-**3. Database Issues**
-- Check `DATABASE_PATH` is correct
-- Verify disk storage is mounted
-- Check file permissions
-
-**4. Build Failures**
-- Check `requirements.txt` syntax
-- Verify Python version compatibility
-- Check build logs for specific errors
-
-### **Debug Commands:**
-```bash
-# Check if bot is running
-curl https://your-app-name.onrender.com/health
-
-# View logs
-# Go to Render dashboard → Logs tab
-```
-
-## 💰 **Pricing**
-
-**Free Tier:**
-- ✅ **750 hours/month** (enough for 24/7 operation)
-- ✅ **512MB RAM**
-- ✅ **1GB disk storage**
-- ✅ **Automatic deployments**
-
-**Paid Plans:**
-- **Starter**: $7/month - More resources
-- **Standard**: $25/month - Better performance
-- **Pro**: $85/month - High availability
-
-## 🎯 **Production Checklist**
-
-Before going live:
-- ✅ **Test all bot commands**
-- ✅ **Verify Google Sheets integration**
-- ✅ **Test audio upload and playback**
-- ✅ **Check notification system**
-- ✅ **Monitor logs for 24 hours**
-- ✅ **Set up error monitoring**
-- ✅ **Create backup strategy**
-
-## 📱 **Mobile Considerations**
-
-- **Bot works on all devices**
-- **Google Drive links work on mobile**
-- **Consider mobile-friendly sheet layout**
-- **Test on different screen sizes**
-
-## 🔄 **Backup Strategy**
-
-1. **Database backups** (automatic with Render)
-2. **Google Drive** (automatic with Google)
-3. **Google Sheets** (automatic with Google)
-4. **Code backups** (automatic with GitHub)
-
-## 🎉 **Success!**
-
-Your Vocalist Screening Bot is now deployed and running on Render.com! 
-
-**Next Steps:**
-1. **Share the bot link** with vocalists
-2. **Train reviewers** on using Google Sheets
-3. **Monitor performance** and usage
-4. **Scale up** if needed
+This guide will help you deploy both the Chenaniah web application and the optimized bot to your VPS.
 
 ---
 
-**Need Help?**
-- Check Render documentation
-- Review bot logs
-- Test locally first
-- Contact support if needed
+## 📋 Prerequisites
+
+- VPS IP: `15.204.227.47`
+- SSH access as user `barch`
+- Bot token from Telegram BotFather
+- Both web and bot code ready
+
+---
+
+## 🎯 Quick Deployment (Recommended)
+
+### Option 1: Simple Deploy Script
+
+```bash
+# From your local machine, in the bot directory
+cd /home/barch/projects/chenaniah/bot
+
+# Run the deployment script
+./deploy.sh
+```
+
+This script will:
+- ✅ Copy all files to VPS
+- ✅ Install dependencies
+- ✅ Configure Nginx
+- ✅ Create systemd services
+- ✅ Start all services
+- ✅ Set up management commands
+
+---
+
+## 🔧 Manual Deployment (Step by Step)
+
+### Step 1: Prepare Files
+
+```bash
+# Make sure you're in the bot directory
+cd /home/barch/projects/chenaniah/bot
+
+# Verify optimized files exist
+ls -la telegram_bot_optimized.py database_optimized.py submission_queue.py performance_monitor.py
+```
+
+### Step 2: Copy Files to VPS
+
+```bash
+# Copy bot files
+scp -r . barch@15.204.227.47:~/chenaniah-bot/
+
+# Copy web files
+scp -r ../web/chenaniah-web barch@15.204.227.47:~/projects/chenaniah/web/
+```
+
+### Step 3: Connect to VPS and Deploy
+
+```bash
+# Connect to VPS
+ssh barch@15.204.227.47
+
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install required packages
+sudo apt install -y python3 python3-pip python3-venv git nginx nodejs npm curl wget htop
+
+# Stop any existing services
+sudo systemctl stop chenaniah-bot 2>/dev/null || true
+sudo systemctl stop chenaniah-web 2>/dev/null || true
+sudo systemctl stop nginx 2>/dev/null || true
+```
+
+### Step 4: Setup Bot Application
+
+```bash
+# Go to bot directory
+cd ~/chenaniah-bot
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# Create necessary directories
+mkdir -p logs data temp exports audio_files
+
+# Set permissions
+chmod +x *.sh *.py
+```
+
+### Step 5: Setup Web Application
+
+```bash
+# Go to web directory
+cd ~/projects/chenaniah/web/chenaniah-web
+
+# Install dependencies
+npm install
+
+# Build the application
+npm run build
+```
+
+### Step 6: Configure Nginx
+
+```bash
+# Create nginx configuration
+sudo tee /etc/nginx/sites-available/chenaniah << 'EOF'
+server {
+    listen 80;
+    server_name 15.204.227.47;
+    
+    # Web application
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # WebSocket support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # Static files
+    location /_next/static/ {
+        proxy_pass http://127.0.0.1:3000;
+        expires 1y;
+        add_header Cache-Control 'public, immutable';
+    }
+    
+    # Bot API
+    location /api/ {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # Audio files
+    location /audio_files/ {
+        alias /home/barch/chenaniah-bot/audio_files/;
+        expires 1y;
+        add_header Cache-Control 'public, immutable';
+        
+        # Enable CORS for audio files
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+    }
+    
+    # Health check
+    location /health {
+        access_log off;
+        return 200 'healthy\n';
+        add_header Content-Type text/plain;
+    }
+}
+EOF
+
+# Enable the site
+sudo ln -sf /etc/nginx/sites-available/chenaniah /etc/nginx/sites-enabled/
+
+# Remove default site
+sudo rm -f /etc/nginx/sites-enabled/default
+
+# Test nginx configuration
+sudo nginx -t
+```
+
+### Step 7: Create Systemd Services
+
+```bash
+# Create web service
+sudo tee /etc/systemd/system/chenaniah-web.service << 'EOF'
+[Unit]
+Description=Chenaniah Web Application
+After=network.target
+
+[Service]
+Type=simple
+User=barch
+WorkingDirectory=/home/barch/projects/chenaniah/web/chenaniah-web
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/home/barch/projects/chenaniah/web/chenaniah-web/logs/web.log
+StandardError=append:/home/barch/projects/chenaniah/web/chenaniah-web/logs/web-error.log
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Create bot service
+sudo tee /etc/systemd/system/chenaniah-bot.service << 'EOF'
+[Unit]
+Description=Chenaniah Worship Ministry Bot
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=barch
+WorkingDirectory=/home/barch/chenaniah-bot
+Environment=PATH=/home/barch/chenaniah-bot/venv/bin
+ExecStart=/home/barch/chenaniah-bot/venv/bin/python telegram_bot_optimized.py
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Performance settings
+LimitNOFILE=65535
+LimitNPROC=4096
+
+# Logging
+StandardOutput=append:/home/barch/chenaniah-bot/logs/bot.log
+StandardError=append:/home/barch/chenaniah-bot/logs/bot-error.log
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Reload systemd
+sudo systemctl daemon-reload
+```
+
+### Step 8: Run System Optimizations
+
+```bash
+# Go to bot directory
+cd ~/chenaniah-bot
+
+# Run optimization script
+sudo bash optimize_vps.sh
+```
+
+### Step 9: Configure Environment Variables
+
+```bash
+# Create .env file for bot
+cd ~/chenaniah-bot
+
+cat > .env << 'EOF'
+# Telegram Bot
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+
+# Database
+DATABASE_PATH=./vocalist_screening.db
+
+# Server
+BASE_URL=http://15.204.227.47
+PORT=5000
+
+# API
+API_SECRET_KEY=your-secret-key-change-in-production
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin123
+EOF
+
+echo "⚠️  IMPORTANT: Update .env file with your actual values!"
+echo "   - TELEGRAM_BOT_TOKEN"
+echo "   - API_SECRET_KEY"
+echo "   - ADMIN_PASSWORD"
+```
+
+### Step 10: Start Services
+
+```bash
+# Enable services
+sudo systemctl enable chenaniah-web
+sudo systemctl enable chenaniah-bot
+sudo systemctl enable nginx
+
+# Start nginx
+sudo systemctl start nginx
+
+# Start web application
+sudo systemctl start chenaniah-web
+
+# Wait for web to start
+sleep 5
+
+# Start bot (only if .env is configured)
+if grep -q 'your_bot_token_here' ~/chenaniah-bot/.env; then
+    echo '⚠️  Bot not started - please update .env file first'
+else
+    sudo systemctl start chenaniah-bot
+    echo '✅ Bot started successfully'
+fi
+```
+
+### Step 11: Verify Deployment
+
+```bash
+# Check service status
+sudo systemctl status chenaniah-web
+sudo systemctl status chenaniah-bot
+sudo systemctl status nginx
+
+# Check ports
+netstat -tlnp | grep -E ':(80|3000|5000)'
+
+# Test endpoints
+curl http://15.204.227.47/health
+curl http://15.204.227.47/api/health
+```
+
+---
+
+## 🎮 Management Commands
+
+### Service Management
+
+```bash
+# Start all services
+sudo systemctl start nginx
+sudo systemctl start chenaniah-web
+sudo systemctl start chenaniah-bot
+
+# Stop all services
+sudo systemctl stop chenaniah-bot
+sudo systemctl stop chenaniah-web
+sudo systemctl stop nginx
+
+# Restart all services
+sudo systemctl restart nginx
+sudo systemctl restart chenaniah-web
+sudo systemctl restart chenaniah-bot
+
+# Check status
+sudo systemctl status chenaniah-web
+sudo systemctl status chenaniah-bot
+sudo systemctl status nginx
+```
+
+### Log Monitoring
+
+```bash
+# View logs in real-time
+journalctl -u chenaniah-web -f
+journalctl -u chenaniah-bot -f
+journalctl -u nginx -f
+
+# View recent logs
+journalctl -u chenaniah-web -n 50
+journalctl -u chenaniah-bot -n 50
+journalctl -u nginx -n 50
+
+# View error logs only
+journalctl -u chenaniah-web -p err
+journalctl -u chenaniah-bot -p err
+journalctl -u nginx -p err
+```
+
+### Quick Management Scripts
+
+```bash
+# Create management scripts
+cd ~/chenaniah-bot
+
+# Start all script
+cat > start-all.sh << 'EOF'
+#!/bin/bash
+echo 'Starting all Chenaniah services...'
+sudo systemctl start nginx
+sudo systemctl start chenaniah-web
+sudo systemctl start chenaniah-bot
+echo 'All services started!'
+EOF
+
+# Stop all script
+cat > stop-all.sh << 'EOF'
+#!/bin/bash
+echo 'Stopping all Chenaniah services...'
+sudo systemctl stop chenaniah-bot
+sudo systemctl stop chenaniah-web
+sudo systemctl stop nginx
+echo 'All services stopped!'
+EOF
+
+# Restart all script
+cat > restart-all.sh << 'EOF'
+#!/bin/bash
+echo 'Restarting all Chenaniah services...'
+sudo systemctl restart nginx
+sudo systemctl restart chenaniah-web
+sudo systemctl restart chenaniah-bot
+echo 'All services restarted!'
+EOF
+
+# Status script
+cat > status-all.sh << 'EOF'
+#!/bin/bash
+echo '=== Chenaniah Services Status ==='
+echo ''
+echo 'Nginx:'
+sudo systemctl status nginx --no-pager -l
+echo ''
+echo 'Web App:'
+sudo systemctl status chenaniah-web --no-pager -l
+echo ''
+echo 'Bot:'
+sudo systemctl status chenaniah-bot --no-pager -l
+echo ''
+echo 'Ports:'
+netstat -tlnp | grep -E ':(80|3000|5000)'
+echo ''
+echo 'Resources:'
+free -h
+df -h
+EOF
+
+# Make scripts executable
+chmod +x *.sh
+```
+
+---
+
+## 🌐 Access Points
+
+After deployment, your platform will be available at:
+
+- **Web Application**: http://15.204.227.47
+- **Bot API**: http://15.204.227.47/api/
+- **Audio Files**: http://15.204.227.47/audio_files/
+- **Health Check**: http://15.204.227.47/health
+- **Bot Health**: http://15.204.227.47/api/health
+
+---
+
+## 🔧 Configuration
+
+### Bot Configuration (.env)
+
+```bash
+# Edit bot configuration
+nano ~/chenaniah-bot/.env
+
+# Required values:
+TELEGRAM_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+API_SECRET_KEY=your-super-secret-key-here
+ADMIN_PASSWORD=your-secure-admin-password
+```
+
+### Web Configuration
+
+```bash
+# Edit web configuration if needed
+nano ~/projects/chenaniah/web/chenaniah-web/.env.local
+
+# Common settings:
+NEXT_PUBLIC_API_URL=http://15.204.227.47/api
+NEXT_PUBLIC_BASE_URL=http://15.204.227.47
+```
+
+---
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+#### Bot not starting
+```bash
+# Check logs
+journalctl -u chenaniah-bot -n 50
+
+# Check if .env is configured
+cat ~/chenaniah-bot/.env
+
+# Check if token is valid
+grep TELEGRAM_BOT_TOKEN ~/chenaniah-bot/.env
+```
+
+#### Web app not loading
+```bash
+# Check logs
+journalctl -u chenaniah-web -n 50
+
+# Check if port 3000 is listening
+netstat -tlnp | grep :3000
+
+# Restart web service
+sudo systemctl restart chenaniah-web
+```
+
+#### Nginx errors
+```bash
+# Test configuration
+sudo nginx -t
+
+# Check logs
+journalctl -u nginx -n 50
+
+# Restart nginx
+sudo systemctl restart nginx
+```
+
+#### Port conflicts
+```bash
+# Check what's using ports
+sudo netstat -tlnp | grep -E ':(80|3000|5000)'
+
+# Kill conflicting processes
+sudo pkill -f node
+sudo pkill -f python
+```
+
+---
+
+## 📊 Monitoring
+
+### System Resources
+
+```bash
+# Check system resources
+free -h
+df -h
+top -bn1 | head -20
+
+# Check specific processes
+ps aux | grep -E "(node|python|nginx)"
+```
+
+### Application Health
+
+```bash
+# Test web app
+curl -I http://15.204.227.47
+
+# Test bot API
+curl -I http://15.204.227.47/api/health
+
+# Test audio serving
+curl -I http://15.204.227.47/audio_files/
+```
+
+### Bot Statistics
+
+Use the `/stats` command in your Telegram bot to see:
+- Queue status
+- Database statistics
+- System performance
+- Processing metrics
+
+---
+
+## 🔄 Updates and Maintenance
+
+### Updating Bot
+
+```bash
+# Copy new files
+scp -r . barch@15.204.227.47:~/chenaniah-bot/
+
+# On VPS
+ssh barch@15.204.227.47
+cd ~/chenaniah-bot
+source venv/bin/activate
+pip install -r requirements.txt
+sudo systemctl restart chenaniah-bot
+```
+
+### Updating Web App
+
+```bash
+# Copy new files
+scp -r ../web/chenaniah-web barch@15.204.227.47:~/projects/chenaniah/web/
+
+# On VPS
+ssh barch@15.204.227.47
+cd ~/projects/chenaniah/web/chenaniah-web
+npm install
+npm run build
+sudo systemctl restart chenaniah-web
+```
+
+### Database Maintenance
+
+```bash
+# Backup database
+cp ~/chenaniah-bot/vocalist_screening.db ~/vocalist_screening.db.backup
+
+# Optimize database
+cd ~/chenaniah-bot
+sqlite3 vocalist_screening.db "PRAGMA optimize;"
+sqlite3 vocalist_screening.db "VACUUM;"
+```
+
+---
+
+## ✅ Deployment Checklist
+
+- [ ] VPS accessible via SSH
+- [ ] Bot token obtained from BotFather
+- [ ] All optimized files copied to VPS
+- [ ] Dependencies installed
+- [ ] Nginx configured
+- [ ] Systemd services created
+- [ ] System optimizations applied
+- [ ] Environment variables configured
+- [ ] Services started
+- [ ] Health checks passing
+- [ ] Bot responding to /start command
+- [ ] Web app loading correctly
+- [ ] Audio files accessible
+
+---
+
+## 🎉 Success!
+
+Your Chenaniah platform is now deployed and ready for launch!
+
+**Access URLs:**
+- Web: http://15.204.227.47
+- Bot API: http://15.204.227.47/api/
+- Audio: http://15.204.227.47/audio_files/
+
+**Management:**
+- SSH: `ssh barch@15.204.227.47`
+- Services: `sudo systemctl status chenaniah-*`
+- Logs: `journalctl -u chenaniah-* -f`
+
+**Next Steps:**
+1. Test all functionality
+2. Configure SSL certificate (optional)
+3. Set up monitoring alerts
+4. Plan for scaling if needed
+
+🚀 **Ready for launch!**

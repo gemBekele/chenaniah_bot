@@ -7,26 +7,55 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from telegram.constants import ParseMode
 
 from config import Config
-from database import Database
+from database_optimized import DatabaseOptimized
 from local_storage_service import LocalStorageService
+from submission_queue import SubmissionQueue, Priority
+from performance_monitor import PerformanceMonitor
 
 # Configure logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.INFO,
+    handlers=[
+        logging.FileHandler('logs/bot.log'),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
 
-class VocalistScreeningBot:
+class VocalistScreeningBotOptimized:
+    """Optimized bot with rate limiting, queuing, and performance monitoring"""
+    
     def __init__(self):
-        self.db = Database()
+        self.db = DatabaseOptimized(pool_size=10)
         self.storage_service = LocalStorageService()
+        self.submission_queue = SubmissionQueue(max_workers=5, max_queue_size=1000)
+        self.performance_monitor = PerformanceMonitor(check_interval=30)
         self.application = None
+        
+        # Configuration
+        self.MAX_SUBMISSIONS_PER_DAY = 3
+        self.MAX_AUDIO_SIZE_MB = 10
+        self.MAX_AUDIO_SIZE_BYTES = self.MAX_AUDIO_SIZE_MB * 1024 * 1024
+        
+        logger.info("Optimized bot initialized with queue and monitoring")
     
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /start command"""
         user = update.effective_user
         user_id = user.id
+        
+        # Check rate limit
+        can_submit, message = await self.db.check_rate_limit(user_id, self.MAX_SUBMISSIONS_PER_DAY)
+        
+        if not can_submit:
+            await update.message.reply_text(
+                f"❌ {message}\n\n"
+                f"You can only submit {self.MAX_SUBMISSIONS_PER_DAY} applications per day.\n"
+                f"እባክዎ በቀን {self.MAX_SUBMISSIONS_PER_DAY} አመልካቾችን ብቻ ማስገባት ይችላሉ።",
+                parse_mode=ParseMode.MARKDOWN
+            )
+            return
         
         # Reset any existing state
         await self.db.reset_user_state(user_id)
@@ -59,7 +88,7 @@ To help us get to know you better, I'll need to collect some information:
 
 Let's begin! 
 
- **full name ሙሉ ስም**  :
+**full name ሙሉ ስም**  :
         """
         
         await update.message.reply_text(welcome_message, parse_mode=ParseMode.MARKDOWN)
@@ -123,7 +152,6 @@ Let's begin!
     
     async def handle_church_input(self, update: Update, text: str, user_id: int):
         """Handle church input"""
-        # Validate church name (at least 3 characters)
         if len(text.strip()) < 3:
             await update.message.reply_text(
                 "❌ Please enter a valid church name (at least 3 characters).\n"
@@ -140,7 +168,7 @@ Let's begin!
             "ድምጽዎን ለመለየት እንዲጠቅመን እባክዎ እዚሁ በመዘመር የድምፅ መልዕክት ይላኩ\n\n"
             "You can either:\n"
             "• Record a worship song directly\n"
-            "• Upload an audio file of you singing (not more than 2MB in size)\n\n"
+            f"• Upload an audio file of you singing (max {self.MAX_AUDIO_SIZE_MB}MB)\n\n"
             "Please share a clear recording of you singing a worship song!",
             parse_mode=ParseMode.MARKDOWN
         )
@@ -161,47 +189,64 @@ Let's begin!
             await update.message.reply_text("Please send an audio file or voice message.\nእባክዎ የድምፅ ፋይል ወይም የድምፅ መልዕክት ይላኩ።")
             return
         
+        # Check file size
+        file_size = audio.file_size
+        if file_size > self.MAX_AUDIO_SIZE_BYTES:
+            await update.message.reply_text(
+                f"❌ Audio file is too large ({file_size / (1024*1024):.1f} MB).\n"
+                f"Maximum size is {self.MAX_AUDIO_SIZE_MB} MB.\n\n"
+                f"❌ የድምፅ ፋይሉ በጣም ትልቅ ነው።\n"
+                f"ከፍተኛው መጠን {self.MAX_AUDIO_SIZE_MB} MB ነው።"
+            )
+            return
+        
+        # Check queue capacity
+        if self.submission_queue.get_queue_capacity() > 90:
+            await update.message.reply_text(
+                "⚠️ System is experiencing high load. Please try again in a few minutes.\n"
+                "⚠️ ስርዓቱ ከፍተኛ ጭነት እያጋጠመው ነው። እባክዎ በጥቂት ደቂቃዎች ውስጥ እንደገና ይሞክሩ።"
+            )
+            return
+        
         try:
             # Show processing message
-            processing_msg = await update.message.reply_text("🔄 Processing your worship song......")
+            processing_msg = await update.message.reply_text("🔄 Processing your worship song...")
             
             # Get file from Telegram
             file = await context.bot.get_file(audio.file_id)
             file_data = await file.download_as_bytearray()
             
-            # Generate filename with correct extension based on MIME type
+            # Generate filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             username = user_data.get('username', 'user')
             
-            # Determine file extension based on MIME type
+            # Determine file extension
             mime_type = audio.mime_type or 'audio/mpeg'
             if 'ogg' in mime_type or 'opus' in mime_type:
                 extension = 'ogg'
             elif 'wav' in mime_type:
                 extension = 'wav'
             else:
-                extension = 'mp3'  # Default to mp3
+                extension = 'mp3'
             
             filename = f"worship_sample_{username}_{timestamp}.{extension}"
             
             # Upload to local storage
             file_path = await self.storage_service.upload_audio_file(
-                file_data, filename, audio.mime_type or 'audio/mpeg'
+                file_data, filename, mime_type
             )
-            # Create a viewable link for display
+            
+            # Create viewable link
             audio_view_link = self.storage_service.get_file_url(file_path)
             
-            # Get file size
-            file_size = len(file_data)
-            
-            # Get audio duration (approximate from file size, or use actual duration if available)
+            # Get audio duration
             audio_duration = getattr(audio, 'duration', 0)
             
             # Update user state with audio info
             await self.db.update_user_state(
                 user_id,
                 audio_file_id=audio.file_id,
-                audio_file_path=file_path,  # Store file path for reference
+                audio_file_path=file_path,
                 file_size=file_size,
                 audio_duration=audio_duration,
                 state='ready_to_submit'
@@ -231,50 +276,10 @@ Let's begin!
             )
             
         except Exception as e:
-            logger.error(f"Error uploading audio to Google Drive: {e}")
-            
-            # Provide specific error messages based on the error type
-            if "storageQuotaExceeded" in str(e) or "Service Accounts do not have storage quota" in str(e):
-                error_message = (
-                    "❌ **Google Drive Storage Error**\n"
-                    "❌ **የጉግል ድራይቭ ማከማቻ ስህተት**\n\n"
-                    "There's an issue with Google Drive storage. Please contact the administrator.\n"
-                    "የጉግል ድራይቭ ማከማቻ ችግር አለ። እባክዎ አስተዳዳሪውን ያግኙ።\n\n"
-                    "**Your audio file is required for the application.**\n"
-                    "**የድምፅ ፋይልዎ ለአመልካቹ ያስፈልጋል።**"
-                )
-            elif "insufficientParentPermissions" in str(e):
-                error_message = (
-                    "❌ **Google Drive Permission Error**\n"
-                    "❌ **የጉግል ድራይቭ ፈቃድ ስህተት**\n\n"
-                    "The bot doesn't have permission to upload files. Please contact the administrator.\n"
-                    "ቦቱ ፋይሎችን ለመላክ ፈቃድ የለውም። እባክዎ አስተዳዳሪውን ያግኙ።"
-                )
-            elif "HttpError 403" in str(e):
-                error_message = (
-                    "❌ **Google Drive Access Denied**\n"
-                    "❌ **የጉግል ድራይቭ መድረሻ ተከልክሏል**\n\n"
-                    "There's an issue with Google Drive access. Please contact the administrator.\n"
-                    "የጉግል ድራይቭ መድረሻ ችግር አለ። እባክዎ አስተዳዳሪውን ያግኙ።"
-                )
-            else:
-                error_message = (
-                    "❌ Sorry, there was an error uploading your audio file. Please try again.\n"
-                    "❌ ይቅርታ፣ የድምፅ ፋይልዎን በመላክ ላይ ስህተት ተከስቷል። እባክዎ እንደገና ይሞክሩ።\n\n"
-                    "If the problem persists, please contact support.\n"
-                    "ችግሩ ካለቀቀ እባክዎ ድጋፍ ያግኙ።"
-                )
-            
-            # Show error message with retry option only
-            keyboard = [
-                [InlineKeyboardButton("🔄 Try Again", callback_data="retry_audio")]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            
+            logger.error(f"Error uploading audio: {e}")
             await update.message.reply_text(
-                error_message + "\n\n**Please try uploading your audio file again:**\n**እባክዎ የድምፅ ፋይልዎን እንደገና ይላኩ:**",
-                parse_mode=ParseMode.MARKDOWN,
-                reply_markup=reply_markup
+                "❌ Sorry, there was an error uploading your audio file. Please try again.\n"
+                "❌ ይቅርታ፣ የድምፅ ፋይልዎን በመላክ ላይ ስህተት ተከስቷል። እባክዎ እንደገና ይሞክሩ።"
             )
     
     async def handle_callback_query(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -293,7 +298,7 @@ Let's begin!
             await self.retry_audio(query, user_id)
     
     async def submit_application(self, query, user_id: int):
-        """Submit the application"""
+        """Submit the application to queue"""
         try:
             # Get user data
             user_data = await self.db.get_user_state(user_id)
@@ -301,39 +306,53 @@ Let's begin!
                 await query.edit_message_text("❌ No application data found. Please start over with /start")
                 return
             
-            # Get file size from stored path
-            audio_file_path = user_data.get('audio_file_path', '')
-            file_size = user_data.get('file_size', 0)
+            # Check rate limit again
+            can_submit, message = await self.db.check_rate_limit(user_id, self.MAX_SUBMISSIONS_PER_DAY)
+            if not can_submit:
+                await query.edit_message_text(f"❌ {message}")
+                return
             
-            # Create submission in database
-            submission_id = await self.db.create_submission(
-                user_id=user_id,
-                name=user_data.get('name'),
-                address=user_data.get('address'),
-                phone=user_data.get('phone'),
-                church=user_data.get('church'),
-                telegram_username=user_data.get('username'),
-                audio_file_path=audio_file_path,
-                audio_file_size=file_size,
-                audio_duration=0  # Will be calculated if needed
+            # Prepare submission data
+            submission_data = {
+                'name': user_data.get('name'),
+                'address': user_data.get('address'),
+                'phone': user_data.get('phone'),
+                'church': user_data.get('church'),
+                'telegram_username': user_data.get('username', ''),
+                'audio_file_path': user_data.get('audio_file_path'),
+                'audio_file_size': user_data.get('file_size', 0),
+                'audio_duration': user_data.get('audio_duration', 0)
+            }
+            
+            # Add to queue
+            queued = await self.submission_queue.enqueue(
+                user_id, submission_data, Priority.NORMAL
             )
+            
+            if not queued:
+                await query.edit_message_text(
+                    "⚠️ System is at capacity. Please try again in a few minutes.\n"
+                    "⚠️ ስርዓቱ በሙሉ አቅሙ ላይ ነው። እባክዎ በጥቂት ደቂቃዎች ውስጥ እንደገና ይሞክሩ።"
+                )
+                return
             
             # Reset user state
             await self.db.reset_user_state(user_id)
             
+            # Get queue position
+            queue_position = self.submission_queue.get_queue_size()
+            
             # Send confirmation
             await query.edit_message_text(
-                f"🎉 **Application Submitted Successfully!**\n"
-                f"Thank you, {user_data.get('name')}! Your worship ministry application has been submitted.\n"
-                f"Our team will review your submission and contact you!\n"
-                f"**Application ID:** #{submission_id}\n"
+                f"🎉 **Application Queued Successfully!**\n"
+                f"Thank you, {user_data.get('name')}! Your worship ministry application is being processed.\n"
+                f"Our team will review your submission and contact you!\n\n"
+                f"📊 Queue position: #{queue_position}\n"
+                f"⏱️ Estimated processing time: {queue_position * 2} seconds\n"
                 f"**Submitted at:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
                 f"May God bless you! 🙏\n",
                 parse_mode=ParseMode.MARKDOWN
             )
-            
-            # Notify reviewers (if configured)
-            await self.notify_reviewers(user_data, submission_id)
             
         except Exception as e:
             logger.error(f"Error submitting application: {e}")
@@ -352,38 +371,47 @@ Let's begin!
         """Retry audio upload"""
         await query.edit_message_text(
             "🔄 Please try uploading your worship song sample again.\n"
-            "You can either:\n"
-            "• Record a worship song directly\n"
-            "• Upload an audio file of you singing (not more than 2MB in size)\n\n"
+            f"Maximum file size: {self.MAX_AUDIO_SIZE_MB} MB\n\n"
             "Please share a clear recording of you singing a worship song!",
             parse_mode=ParseMode.MARKDOWN
         )
     
-    async def notify_reviewers(self, user_data: dict, submission_id: int):
-        """Notify reviewers about new submission"""
-        if not Config.REVIEWER_TELEGRAM_CHAT_ID:
-            return
+    async def stats_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Show system statistics (admin only)"""
+        # Simple admin check - you can enhance this
+        user_id = update.effective_user.id
         
-        try:
-            notification_text = f"""
-🔔 **New Vocalist Submission**
+        # Get stats
+        queue_stats = self.submission_queue.get_stats()
+        performance_stats = self.performance_monitor.get_current_metrics()
+        db_stats = await self.db.get_submission_stats()
+        
+        stats_message = f"""
+📊 **System Statistics**
 
-**Name:** {user_data.get('name')}
-**Phone:** {user_data.get('phone')}
-**Address:** {user_data.get('address')}
-**Telegram:** @{user_data.get('username', 'No username')}
-**Submission ID:** #{submission_id}
-**Audio Link:** {user_data.get('audio_drive_link')}
+**Queue Status:**
+• Current queue size: {queue_stats['current_queue_size']}
+• Total processed: {queue_stats['total_processed']}
+• Total failed: {queue_stats['total_failed']}
+• Avg processing time: {queue_stats['average_processing_time']:.2f}s
 
-Check the Google Sheet for full details.
+**Database:**
+• Total submissions: {db_stats['total']}
+• Pending: {db_stats['pending']}
+• Approved: {db_stats['approved']}
+• Rejected: {db_stats['rejected']}
+        """
+        
+        if performance_stats:
+            stats_message += f"""
+**System Performance:**
+• CPU: {performance_stats['cpu_percent']:.1f}%
+• Memory: {performance_stats['memory_percent']:.1f}%
+• Available RAM: {performance_stats['memory_available_mb']:.0f} MB
+• Bot Memory: {performance_stats['bot_memory_mb']:.1f} MB
             """
-            
-            # This would require the bot to send to reviewers
-            # For now, we'll just log it
-            logger.info(f"New submission notification: {notification_text}")
-            
-        except Exception as e:
-            logger.error(f"Error notifying reviewers: {e}")
+        
+        await update.message.reply_text(stats_message, parse_mode=ParseMode.MARKDOWN)
     
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /help command"""
@@ -394,7 +422,7 @@ Check the Google Sheet for full details.
 **Commands:**
 /start - Begin the application process
 /help - Show this help message
-/status - Check your application status
+/stats - Show system statistics
 
 **How it works:**
 1. Send /start to begin
@@ -407,42 +435,14 @@ Check the Google Sheet for full details.
 - Valid contact information
 - Complete all steps in order
 
-**About Chenaniah Worship Ministry:**
-We are seeking passionate worship leaders and singers to join our ministry team. We believe in the power of worship to draw people closer to God.
-
 Need help? Contact our ministry team.
         """
         await update.message.reply_text(help_text, parse_mode=ParseMode.MARKDOWN)
-    
-    async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle /status command"""
-        user_id = update.effective_user.id
-        user_data = await self.db.get_user_state(user_id)
-        
-        if not user_data or user_data.get('state') == 'idle':
-            await update.message.reply_text(
-                "You don't have any active applications. Send /start to begin your worship ministry application.\n"
-            )
-            return
-        
-        state = user_data.get('state', 'idle')
-        status_messages = {
-            'collecting_name': "⏳ Please provide your full name\nእባክዎ ሙሉ ስምዎትን ይንገሩን",
-            'collecting_address': "⏳ Please provide your address\nየመኖርያ አድራሻዎን ይንገሩን",
-            'collecting_phone': "⏳ Please provide your phone number\nለመገኘት የሚችሉቡትን የስልክ ቁጥርዎን ያስገቡ",
-            'collecting_church': "⏳ Please provide your local church\nህብረት የሚያደርጉበትን ቤተክርስቲያን ያሳውቁን",
-            'collecting_audio': "⏳ Please upload your worship song sample\nየህብረት ድምፅ ናሙናዎን እባክዎ ይላኩ",
-            'ready_to_submit': "✅ Ready to submit - click the button in your last message\n✅ ለመላክ ዝግጁ - በመጨረሻው መልዕክትዎ ውስጥ ያለውን ቁልፍ ይጫኑ"
-        }
-        
-        message = status_messages.get(state, "Unknown status")
-        await update.message.reply_text(message)
     
     async def error_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle errors"""
         logger.error(f"Update {update} caused error {context.error}")
         
-        # Send user-friendly error message
         if update and update.effective_message:
             await update.effective_message.reply_text(
                 "❌ Sorry, something went wrong. Please try again or contact support if the issue persists.\n"
@@ -456,33 +456,36 @@ Need help? Contact our ministry team.
         # Create application
         self.application = Application.builder().token(Config.TELEGRAM_BOT_TOKEN).build()
         
+        # Start queue and monitoring
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.submission_queue.start(self.db))
+        loop.create_task(self.performance_monitor.start(self.submission_queue))
+        
         # Add error handler
         self.application.add_error_handler(self.error_handler)
         
         # Add handlers
         self.application.add_handler(CommandHandler("start", self.start_command))
         self.application.add_handler(CommandHandler("help", self.help_command))
-        self.application.add_handler(CommandHandler("status", self.status_command))
+        self.application.add_handler(CommandHandler("stats", self.stats_command))
         self.application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_text_message))
         self.application.add_handler(MessageHandler(filters.AUDIO | filters.VOICE, self.handle_audio_message))
         self.application.add_handler(CallbackQueryHandler(self.handle_callback_query))
         
         # Start the bot
-        logger.info("Starting Vocalist Screening Bot...")
+        logger.info("Starting Optimized Vocalist Screening Bot...")
         try:
-            # Add a delay to prevent conflicts with other instances
-            import time
-            import random
-            delay = random.uniform(1, 5)  # Random delay between 1-5 seconds
-            logger.info(f"Waiting {delay:.2f} seconds to prevent conflicts...")
-            time.sleep(delay)
-            
-            # The run_polling method already handles webhook cleanup
             self.application.run_polling(drop_pending_updates=True)
         except Exception as e:
             logger.error(f"Error running bot: {e}")
             raise
+        finally:
+            # Cleanup
+            loop.run_until_complete(self.submission_queue.stop())
+            loop.run_until_complete(self.performance_monitor.stop())
+            self.db.close()
 
 if __name__ == "__main__":
-    bot = VocalistScreeningBot()
+    bot = VocalistScreeningBotOptimized()
     bot.run()
+

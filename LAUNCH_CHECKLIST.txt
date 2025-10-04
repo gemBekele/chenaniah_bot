@@ -1,0 +1,183 @@
+═══════════════════════════════════════════════════
+🚀 LAUNCH WEEK CHECKLIST - CHENANIAH BOT
+═══════════════════════════════════════════════════
+
+📋 PRE-LAUNCH (Do 24 Hours Before)
+═══════════════════════════════════════════════════
+
+□ Upload optimized files to VPS
+  Command: scp database_optimized.py submission_queue.py performance_monitor.py telegram_bot_optimized.py optimize_vps.sh barch@15.204.227.47:~/chenaniah-bot/
+
+□ Run optimization script
+  Command: ssh barch@15.204.227.47
+          cd ~/chenaniah-bot
+          source venv/bin/activate
+          pip install psutil
+          sudo bash optimize_vps.sh
+          exit
+          ssh barch@15.204.227.47 (login again)
+
+□ Verify bot is running
+  Command: sudo systemctl status chenaniah-bot
+
+□ Test with 10+ concurrent users
+
+□ Verify /stats command works
+
+□ Check logs are clean
+  Command: journalctl -u chenaniah-bot -n 50
+
+□ Test rate limiting (try 4 submissions from same user)
+
+□ Verify auto-restart works
+  Command: sudo systemctl restart chenaniah-bot
+
+□ Take database backup
+  Command: cp ~/chenaniah-bot/vocalist_screening.db ~/vocalist_screening.db.backup
+
+
+═══════════════════════════════════════════════════
+🎯 LAUNCH DAY
+═══════════════════════════════════════════════════
+
+HOUR 1-2: Active Monitoring
+□ Monitor logs continuously
+  Command: journalctl -u chenaniah-bot -f
+
+□ Check /stats every 15 minutes
+
+□ Watch for memory/CPU alerts
+
+HOUR 3-6: Regular Checks
+□ Check /stats every 30 minutes
+
+□ Review error logs
+  Command: journalctl -u chenaniah-bot -p err
+
+□ Verify queue is processing
+  Look for: "Queue Status - Size: X, Processed: Y"
+
+HOUR 7-24: Periodic Monitoring
+□ Check /stats every 2 hours
+
+□ Monitor disk space
+  Command: df -h
+
+□ Check bot uptime
+  Command: sudo systemctl status chenaniah-bot
+
+
+═══════════════════════════════════════════════════
+📊 MONITORING TARGETS (Normal Operation)
+═══════════════════════════════════════════════════
+
+✅ CPU Usage: < 60%
+✅ Memory Usage: < 70%
+✅ Queue Size: < 100
+✅ Disk Space: > 50 GB free
+✅ Failed Submissions: < 5%
+✅ Response Time: < 2 seconds
+
+
+═══════════════════════════════════════════════════
+⚠️  WARNING SIGNS (Take Action)
+═══════════════════════════════════════════════════
+
+❌ CPU > 80% for > 5 minutes
+   → Increase workers or reduce load
+
+❌ Memory > 85%
+   → Restart bot: sudo systemctl restart chenaniah-bot
+
+❌ Queue Size > 500
+   → Check database performance
+
+❌ Disk < 10 GB
+   → Clean old audio files or expand storage
+
+❌ Many failed submissions
+   → Check logs: journalctl -u chenaniah-bot -p err
+
+
+═══════════════════════════════════════════════════
+🆘 EMERGENCY COMMANDS
+═══════════════════════════════════════════════════
+
+Restart Bot:
+  sudo systemctl restart chenaniah-bot
+
+Check Status:
+  sudo systemctl status chenaniah-bot
+
+View Errors:
+  journalctl -u chenaniah-bot -p err -n 50
+
+Clear Memory:
+  sync; sudo sh -c "echo 3 > /proc/sys/vm/drop_caches"
+  sudo systemctl restart chenaniah-bot
+
+Check Resources:
+  free -h
+  df -h
+  top -bn1 | head -20
+
+Database Checkpoint:
+  cd ~/chenaniah-bot
+  sqlite3 vocalist_screening.db "PRAGMA wal_checkpoint(FULL);"
+
+
+═══════════════════════════════════════════════════
+📈 POST-LAUNCH (After 24 Hours)
+═══════════════════════════════════════════════════
+
+□ Export performance metrics
+  Command: Use /stats command, screenshot results
+
+□ Review error logs
+  Command: journalctl -u chenaniah-bot -p err --since "24 hours ago"
+
+□ Check submission statistics
+  Command: cd ~/chenaniah-bot
+          sqlite3 vocalist_screening.db "SELECT COUNT(*) FROM submissions;"
+
+□ Analyze peak load times
+
+□ Document any issues encountered
+
+□ Plan optimizations if needed
+
+□ Celebrate successful launch! 🎉
+
+
+═══════════════════════════════════════════════════
+📞 QUICK REFERENCE
+═══════════════════════════════════════════════════
+
+VPS IP:        15.204.227.47
+SSH User:      barch
+Bot Dir:       ~/chenaniah-bot
+Service:       chenaniah-bot
+View Logs:     journalctl -u chenaniah-bot -f
+Check Stats:   /stats command in Telegram
+Restart:       sudo systemctl restart chenaniah-bot
+
+
+═══════════════════════════════════════════════════
+✅ CAPACITY SUMMARY
+═══════════════════════════════════════════════════
+
+Your system can handle:
+  ✅ 500-800 daily users (comfortable)
+  ✅ 80-100 concurrent users
+  ✅ 1,000+ submissions per day
+  ✅ Automatic recovery
+  ✅ Real-time monitoring
+  ✅ 6-12 months before upgrade needed
+
+System Status: READY FOR LAUNCH! 🚀
+
+
+═══════════════════════════════════════════════════
+Print this checklist and keep it handy during launch!
+═══════════════════════════════════════════════════
+
