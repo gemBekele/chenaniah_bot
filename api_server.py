@@ -6,7 +6,7 @@ from pathlib import Path
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
-from database import Database
+from database_optimized import DatabaseOptimized
 from config import Config
 import logging
 
@@ -23,7 +23,7 @@ ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'admin123')
 
 # Initialize database
-db = Database()
+db = DatabaseOptimized()
 
 def token_required(f):
     """Decorator to require JWT token"""
