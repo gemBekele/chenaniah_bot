@@ -1,0 +1,25 @@
+[Unit]
+Description=Chenaniah API Server
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=exec
+User=barch
+WorkingDirectory=/home/barch/chenaniah_bot
+Environment=PATH=/home/barch/chenaniah_bot/venv/bin
+EnvironmentFile=/home/barch/chenaniah_bot/.env
+ExecStart=/home/barch/chenaniah_bot/venv/bin/gunicorn --bind 0.0.0.0:5000 --workers 4 --worker-class sync --timeout 120 --keep-alive 2 --max-requests 1000 --max-requests-jitter 100 --preload wsgi:application
+Restart=always
+RestartSec=10
+
+# Performance settings
+LimitNOFILE=65535
+LimitNPROC=4096
+
+# Logging
+StandardOutput=append:/home/barch/chenaniah_bot/logs/api.log
+StandardError=append:/home/barch/chenaniah_bot/logs/api-error.log
+
+[Install]
+WantedBy=multi-user.target
