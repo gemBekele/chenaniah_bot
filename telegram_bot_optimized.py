@@ -35,7 +35,7 @@ class VocalistScreeningBotOptimized:
         
         # Configuration
         self.MAX_SUBMISSIONS_PER_DAY = 3
-        self.MAX_AUDIO_SIZE_MB = 10
+        self.MAX_AUDIO_SIZE_MB = 5
         self.MAX_AUDIO_SIZE_BYTES = self.MAX_AUDIO_SIZE_MB * 1024 * 1024
         
         logger.info("Optimized bot initialized with queue and monitoring")
@@ -52,7 +52,7 @@ class VocalistScreeningBotOptimized:
             await update.message.reply_text(
                 f"❌ {message}\n\n"
                 f"You can only submit {self.MAX_SUBMISSIONS_PER_DAY} applications per day.\n"
-                f"እባክዎ በቀን {self.MAX_SUBMISSIONS_PER_DAY} አመልካቾችን ብቻ ማስገባት ይችላሉ።",
+                f"እባክዎ በቀን {self.MAX_SUBMISSIONS_PER_DAY} ጊዜ ብቻ ማስገባት ይችላሉ።",
                 parse_mode=ParseMode.MARKDOWN
             )
             return
@@ -70,25 +70,15 @@ class VocalistScreeningBotOptimized:
         )
         
         welcome_message = f"""
-🎵 **Welcome to Chenaniah Worship Ministry!**
-ክናንያ የህብረት መዘምራን
+            🎵 **Welcome to Chenaniah music Ministry!**
+            ክናንያ የህብረት መዘምራን
 
-Hi {user.first_name}! We're excited that you're interested in joining our ministry.
-እንኳን ወደ ክናንያ የህብረት መዘምራን መመዝገብያ በደህና መጡ
+            Hi {user.first_name}! We're excited that you're interested in joining our ministry.
+            እንኳን ወደ ክናንያ የህብረት መዘምራን መመዝገብያ በደህና መጡ
 
-To help us get to know you better, I'll need to collect some information:
-እባክዎ ሙሉ ስምዎትን ይንገሩን
+            To help us get to know you better, We'll need to collect some information:
+            እባክዎ ሙሉ ስምዎትን ይንገሩን
 
-**Information needed:**
-1. Your full name
-2. Your address  
-3. Your phone number
-4. Your local church
-5. Your worship song sample
-
-Let's begin! 
-
-**full name ሙሉ ስም**  :
         """
         
         await update.message.reply_text(welcome_message, parse_mode=ParseMode.MARKDOWN)
@@ -123,7 +113,7 @@ Let's begin!
         
         await update.message.reply_text(
             f"Great! Thanks, {text}.\n\n"
-            "Now please send me your **address**:\n"
+            "Now please send us your **address**:\n"
             "የመኖርያ አድራሻዎን ይንገሩን",
             parse_mode=ParseMode.MARKDOWN
         )
@@ -134,7 +124,7 @@ Let's begin!
         
         await update.message.reply_text(
             f"Perfect! Address recorded.\n\n"
-            "Now please send me your **phone number**:\n"
+            "Now please send us your **phone number**:\n"
             "መገኘት የሚችሉቡትን የስልክ ቁጥርዎን ያስገቡ",
             parse_mode=ParseMode.MARKDOWN
         )
@@ -168,7 +158,6 @@ Let's begin!
             "ድምጽዎን ለመለየት እንዲጠቅመን እባክዎ እዚሁ በመዘመር የድምፅ መልዕክት ይላኩ\n\n"
             "You can either:\n"
             "• Record a worship song directly\n"
-            f"• Upload an audio file of you singing (max {self.MAX_AUDIO_SIZE_MB}MB)\n\n"
             "Please share a clear recording of you singing a worship song!",
             parse_mode=ParseMode.MARKDOWN
         )
@@ -204,7 +193,7 @@ Let's begin!
         if self.submission_queue.get_queue_capacity() > 90:
             await update.message.reply_text(
                 "⚠️ System is experiencing high load. Please try again in a few minutes.\n"
-                "⚠️ ስርዓቱ ከፍተኛ ጭነት እያጋጠመው ነው። እባክዎ በጥቂት ደቂቃዎች ውስጥ እንደገና ይሞክሩ።"
+                "⚠️ እባክዎ በጥቂት ደቂቃዎች ውስጥ እንደገና ይሞክሩ።"
             )
             return
         
@@ -260,8 +249,6 @@ Let's begin!
             reply_markup = InlineKeyboardMarkup(keyboard)
             
             await processing_msg.edit_text(
-                f"✅ Song processed successfully!\n"
-                f"ድምፅ በተሳካ ሁኔታ ተሰርዟል!\n\n"
                 f"**Your Information:**\n"
                 f"**የእርስዎ መረጃ:**\n"
                 f"Name: {user_data.get('name')}\n"
@@ -269,8 +256,8 @@ Let's begin!
                 f"Phone: {user_data.get('phone')}\n"
                 f"Church: {user_data.get('church')}\n"
                 f"Worship Sample: [Preview Audio]({audio_view_link})\n\n"
-                f"Click 'Submit to Ministry' to complete your application:\n"
-                f"አመልካችንን ለማጠናቀቅ 'Submit to Ministry' ይጫኑ:",
+                f"Click 'Submit' to complete your application:\n"
+                f" ለማጠናቀቅ 'Submit' ይጫኑ:",
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=reply_markup
             )
@@ -279,7 +266,6 @@ Let's begin!
             logger.error(f"Error uploading audio: {e}")
             await update.message.reply_text(
                 "❌ Sorry, there was an error uploading your audio file. Please try again.\n"
-                "❌ ይቅርታ፣ የድምፅ ፋይልዎን በመላክ ላይ ስህተት ተከስቷል። እባክዎ እንደገና ይሞክሩ።"
             )
     
     async def handle_callback_query(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -344,11 +330,9 @@ Let's begin!
             
             # Send confirmation
             await query.edit_message_text(
-                f"🎉 **Application Queued Successfully!**\n"
-                f"Thank you, {user_data.get('name')}! Your worship ministry application is being processed.\n"
+                f"🎉 **Application Recieved Successfully!**\n\n"
+                f"Thank you, {user_data.get('name')}! Your application is being processed.\n"
                 f"Our team will review your submission and contact you!\n\n"
-                f"📊 Queue position: #{queue_position}\n"
-                f"⏱️ Estimated processing time: {queue_position * 2} seconds\n"
                 f"**Submitted at:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
                 f"May God bless you! 🙏\n",
                 parse_mode=ParseMode.MARKDOWN
@@ -416,7 +400,7 @@ Let's begin!
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /help command"""
         help_text = """
-🎵 **Chenaniah Worship Ministry Application Help**
+🎵 **Chenaniah Music Ministry Application Help**
 ክናንያ የህብረት መዘምራን አመልካች እርዳታ
 
 **Commands:**
