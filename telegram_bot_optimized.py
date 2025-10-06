@@ -70,9 +70,9 @@ class VocalistScreeningBotOptimized:
         )
         
         welcome_message = f"""
-🎵 **Welcome to Chenaniah music Ministry!**
+🎵 **Welcome to Chenaniah Choir!**
 
-ክናንያ የህብረት መዘምራን
+እንኳን ወደ ክናንያ የህብረት መዘምራን መመዝገብያ በደህና መጡ
 
 👋 Hi {user.first_name}! We're excited that you're interested in joining our ministry.
 
