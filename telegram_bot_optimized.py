@@ -156,10 +156,10 @@ Please provide your full name
         
         await update.message.reply_text(
             f"Perfect! Church recorded.\n\n"
-            "Now please send me your **worship song sample** (voice note or music file).\n"
+            "🎙️ Now please • Record a worship song directly send us your **worship song sample** .\n"
             "ድምጽዎን ለመለየት እንዲጠቅመን እባክዎ እዚሁ በመዘመር የድምፅ መልዕክት ይላኩ\n\n"
-            "You can either:\n"
-            "• Record a worship song directly\n"
+           
+            "\n\n"
             "Please share a clear recording of you singing a worship song!",
             parse_mode=ParseMode.MARKDOWN
         )
@@ -186,8 +186,7 @@ Please provide your full name
             await update.message.reply_text(
                 f"❌ Audio file is too large ({file_size / (1024*1024):.1f} MB).\n"
                 f"Maximum size is {self.MAX_AUDIO_SIZE_MB} MB.\n\n"
-                f"❌ የድምፅ ፋይሉ በጣም ትልቅ ነው።\n"
-                f"ከፍተኛው መጠን {self.MAX_AUDIO_SIZE_MB} MB ነው።"
+                
             )
             return
         
