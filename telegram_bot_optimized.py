@@ -70,14 +70,16 @@ class VocalistScreeningBotOptimized:
         )
         
         welcome_message = f"""
-            🎵 **Welcome to Chenaniah music Ministry!**
-            ክናንያ የህብረት መዘምራን
+        🎵 **Welcome to Chenaniah music Ministry!**
+        
+        ክናንያ የህብረት መዘምራን
 
-            Hi {user.first_name}! We're excited that you're interested in joining our ministry.
-            እንኳን ወደ ክናንያ የህብረት መዘምራን መመዝገብያ በደህና መጡ
-
-            To help us get to know you better, We'll need to collect some information:
-            እባክዎ ሙሉ ስምዎትን ይንገሩን
+        Hi {user.first_name}! We're excited that you're interested in joining our ministry.
+        
+        To help us get to know you better, We'll need to collect some information:
+        
+        Please provide your full name
+        እባክዎ ሙሉ ስምዎትን ይንገሩን:
 
         """
         
