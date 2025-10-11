@@ -76,24 +76,49 @@ def login():
 @app.route('/api/submissions', methods=['GET'])
 @token_required
 def get_submissions():
-    """Get all submissions with optional filtering"""
+    """Get all submissions with optional filtering, pagination, and search"""
     try:
         status = request.args.get('status')
-        limit = int(request.args.get('limit', 100))
+        search_query = request.args.get('search', '').strip()
+        limit = int(request.args.get('limit', 100))  # Default to 100 per page
         offset = int(request.args.get('offset', 0))
+        page = int(request.args.get('page', 1))
+        
+        # Calculate offset from page number
+        if page > 1:
+            offset = (page - 1) * limit
         
         # Run async function in event loop
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        
+        # Get submissions and total count with search
         submissions = loop.run_until_complete(
-            db.get_all_submissions(status=status, limit=limit, offset=offset)
+            db.get_all_submissions(status=status, search_query=search_query, limit=limit, offset=offset)
+        )
+        total_count = loop.run_until_complete(
+            db.get_submission_count(status=status, search_query=search_query)
         )
         loop.close()
+        
+        # Calculate pagination metadata
+        total_pages = (total_count + limit - 1) // limit  # Ceiling division
+        has_next = page < total_pages
+        has_prev = page > 1
         
         return jsonify({
             'success': True,
             'submissions': submissions,
-            'count': len(submissions)
+            'pagination': {
+                'current_page': page,
+                'total_pages': total_pages,
+                'total_count': total_count,
+                'limit': limit,
+                'offset': offset,
+                'has_next': has_next,
+                'has_prev': has_prev
+            },
+            'search_query': search_query
         })
     except Exception as e:
         logger.error(f"Error fetching submissions: {e}")

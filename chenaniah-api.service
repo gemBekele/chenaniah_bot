@@ -6,10 +6,10 @@ StartLimitIntervalSec=0
 [Service]
 Type=exec
 User=barch
-WorkingDirectory=/home/barch/chenaniah_bot
-Environment=PATH=/home/barch/chenaniah_bot/venv/bin
-EnvironmentFile=/home/barch/chenaniah_bot/.env
-ExecStart=/home/barch/chenaniah_bot/venv/bin/gunicorn --bind 0.0.0.0:5000 --workers 4 --worker-class sync --timeout 120 --keep-alive 2 --max-requests 1000 --max-requests-jitter 100 --preload wsgi:application
+WorkingDirectory=/home/barch/projects/chenaniah/bot
+Environment=PATH=/home/barch/projects/chenaniah/bot/venv/bin
+EnvironmentFile=/home/barch/projects/chenaniah/bot/.env
+ExecStart=/home/barch/projects/chenaniah/bot/venv/bin/gunicorn --bind 0.0.0.0:5000 --workers 4 --worker-class sync --timeout 120 --keep-alive 2 --max-requests 1000 --max-requests-jitter 100 --preload wsgi:application
 Restart=always
 RestartSec=10
 

@@ -121,27 +121,74 @@ class Database:
             ''')
             return [dict(row) for row in cursor.fetchall()]
     
-    async def get_all_submissions(self, status: str = None, limit: int = 100, offset: int = 0) -> list:
-        """Get all submissions with optional status filter"""
+    async def get_all_submissions(self, status: str = None, search_query: str = None, limit: int = 10000, offset: int = 0) -> list:
+        """Get all submissions with optional status filter and search"""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             
-            if status:
-                cursor.execute('''
-                    SELECT * FROM submissions 
-                    WHERE status = ?
-                    ORDER BY submitted_at DESC
-                    LIMIT ? OFFSET ?
-                ''', (status, limit, offset))
-            else:
-                cursor.execute('''
-                    SELECT * FROM submissions 
-                    ORDER BY submitted_at DESC
-                    LIMIT ? OFFSET ?
-                ''', (limit, offset))
+            # Build the query dynamically based on filters
+            base_query = 'SELECT * FROM submissions'
+            conditions = []
+            params = []
             
+            if status:
+                conditions.append('status = ?')
+                params.append(status)
+            
+            if search_query:
+                search_condition = '''(
+                    LOWER(name) LIKE LOWER(?) OR 
+                    LOWER(phone) LIKE LOWER(?) OR 
+                    LOWER(church) LIKE LOWER(?) OR 
+                    LOWER(address) LIKE LOWER(?) OR 
+                    LOWER(telegram_username) LIKE LOWER(?)
+                )'''
+                conditions.append(search_condition)
+                search_param = f'%{search_query}%'
+                params.extend([search_param] * 5)  # Add search_param 5 times for each field
+            
+            if conditions:
+                base_query += ' WHERE ' + ' AND '.join(conditions)
+            
+            base_query += ' ORDER BY submitted_at DESC LIMIT ? OFFSET ?'
+            params.extend([limit, offset])
+            
+            cursor.execute(base_query, params)
             return [dict(row) for row in cursor.fetchall()]
+    
+    async def get_submission_count(self, status: str = None, search_query: str = None) -> int:
+        """Get total count of submissions with optional status filter and search"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            # Build the query dynamically based on filters
+            base_query = 'SELECT COUNT(*) FROM submissions'
+            conditions = []
+            params = []
+            
+            if status:
+                conditions.append('status = ?')
+                params.append(status)
+            
+            if search_query:
+                search_condition = '''(
+                    LOWER(name) LIKE LOWER(?) OR 
+                    LOWER(phone) LIKE LOWER(?) OR 
+                    LOWER(church) LIKE LOWER(?) OR 
+                    LOWER(address) LIKE LOWER(?) OR 
+                    LOWER(telegram_username) LIKE LOWER(?)
+                )'''
+                conditions.append(search_condition)
+                search_param = f'%{search_query}%'
+                params.extend([search_param] * 5)  # Add search_param 5 times for each field
+            
+            if conditions:
+                base_query += ' WHERE ' + ' AND '.join(conditions)
+            
+            cursor.execute(base_query, params)
+            return cursor.fetchone()[0]
     
     async def get_submission_by_id(self, submission_id: int) -> Optional[Dict[str, Any]]:
         """Get a single submission by ID"""
