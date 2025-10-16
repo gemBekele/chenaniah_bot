@@ -31,12 +31,10 @@ class VocalistScreeningBot:
         # Check if registration is open
         registration_open = await self.db.get_registration_status()
         if not registration_open:
-            closed_message = """
-የመጀመሪያውን ዙር ምዝገባ ጨርሰናል:: ከሁለት ሺህ በላይ ከሚሆኑ ዝማሬን ከሚወድዱ እና የዝማሬ ስጦታ እንዳላቸው ከሚያምኑ ወንድሞችና እህቶች ጋር የመተዋወቅን ዕድል አግኝተናል:: እናመሰግናለን::
+            closed_message = """የመጀመሪያውን ዙር ምዝገባ ጨርሰናል:: ከሁለት ሺህ በላይ ከሚሆኑ ዝማሬን ከሚወድዱ እና የዝማሬ ስጦታ እንዳላቸው ከሚያምኑ ወንድሞችና እህቶች ጋር የመተዋወቅን ዕድል አግኝተናል:: እናመሰግናለን::
 
-Registration is currently closed. Thank you for your interest in Chenaniah Worship Ministry.
-            """
-            await update.message.reply_text(closed_message, parse_mode=ParseMode.MARKDOWN)
+Registration is currently closed. Thank you for your interest in Chenaniah Worship Ministry."""
+            await update.message.reply_text(closed_message)
             return
         
         # Reset any existing state
@@ -83,12 +81,10 @@ Let's begin!
         # Check if registration is still open
         registration_open = await self.db.get_registration_status()
         if not registration_open:
-            closed_message = """
-የመጀመሪያውን ዙር ምዝገባ ጨርሰናል:: ከሁለት ሺህ በላይ ከሚሆኑ ዝማሬን ከሚወድዱ እና የዝማሬ ስጦታ እንዳላቸው ከሚያምኑ ወንድሞችና እህቶች ጋር የመተዋወቅን ዕድል አግኝተናል:: እናመሰግናለን::
+            closed_message = """የመጀመሪያውን ዙር ምዝገባ ጨርሰናል:: ከሁለት ሺህ በላይ ከሚሆኑ ዝማሬን ከሚወድዱ እና የዝማሬ ስጦታ እንዳላቸው ከሚያምኑ ወንድሞችና እህቶች ጋር የመተዋወቅን ዕድል አግኝተናል:: እናመሰግናለን::
 
-Registration is currently closed. Thank you for your interest in Chenaniah Worship Ministry.
-            """
-            await update.message.reply_text(closed_message, parse_mode=ParseMode.MARKDOWN)
+Registration is currently closed. Thank you for your interest in Chenaniah Worship Ministry."""
+            await update.message.reply_text(closed_message)
             return
         
         # Get current user state
@@ -174,12 +170,10 @@ Registration is currently closed. Thank you for your interest in Chenaniah Worsh
         # Check if registration is still open
         registration_open = await self.db.get_registration_status()
         if not registration_open:
-            closed_message = """
-የመጀመሪያውን ዙር ምዝገባ ጨርሰናል:: ከሁለት ሺህ በላይ ከሚሆኑ ዝማሬን ከሚወድዱ እና የዝማሬ ስጦታ እንዳላቸው ከሚያምኑ ወንድሞችና እህቶች ጋር የመተዋወቅን ዕድል አግኝተናል:: እናመሰግናለን::
+            closed_message = """የመጀመሪያውን ዙር ምዝገባ ጨርሰናል:: ከሁለት ሺህ በላይ ከሚሆኑ ዝማሬን ከሚወድዱ እና የዝማሬ ስጦታ እንዳላቸው ከሚያምኑ ወንድሞችና እህቶች ጋር የመተዋወቅን ዕድል አግኝተናል:: እናመሰግናለን::
 
-Registration is currently closed. Thank you for your interest in Chenaniah Worship Ministry.
-            """
-            await update.message.reply_text(closed_message, parse_mode=ParseMode.MARKDOWN)
+Registration is currently closed. Thank you for your interest in Chenaniah Worship Ministry."""
+            await update.message.reply_text(closed_message)
             return
         
         # Get current user state
