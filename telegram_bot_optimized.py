@@ -10,7 +10,6 @@ from config import Config
 from database_optimized import DatabaseOptimized
 from local_storage_service import LocalStorageService
 from submission_queue import SubmissionQueue, Priority
-from performance_monitor import PerformanceMonitor
 
 # Configure logging
 logging.basicConfig(
@@ -30,7 +29,6 @@ class VocalistScreeningBotOptimized:
         self.db = DatabaseOptimized(pool_size=10)
         self.storage_service = LocalStorageService()
         self.submission_queue = SubmissionQueue(max_workers=5, max_queue_size=1000)
-        self.performance_monitor = PerformanceMonitor()
         self.application = None
         
         # Configuration
@@ -395,7 +393,6 @@ Registration is currently closed. Thank you for your interest in Chenaniah Worsh
         
         # Get stats
         queue_stats = self.submission_queue.get_stats()
-        performance_stats = self.performance_monitor.get_current_metrics()
         db_stats = await self.db.get_submission_stats()
         
         stats_message = f"""
@@ -471,7 +468,6 @@ Need help? Contact our ministry team.
         # Start queue and monitoring
         loop = asyncio.get_event_loop()
         loop.create_task(self.submission_queue.start(self.db))
-        loop.create_task(self.performance_monitor.start(self.submission_queue))
         
         # Add error handler
         self.application.add_error_handler(self.error_handler)
@@ -494,7 +490,6 @@ Need help? Contact our ministry team.
         finally:
             # Cleanup
             loop.run_until_complete(self.submission_queue.stop())
-            loop.run_until_complete(self.performance_monitor.stop())
             self.db.close()
 
 if __name__ == "__main__":
