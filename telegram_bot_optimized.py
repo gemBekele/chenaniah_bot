@@ -45,6 +45,17 @@ class VocalistScreeningBotOptimized:
         user = update.effective_user
         user_id = user.id
         
+        # Check if registration is open
+        registration_open = await self.db.get_registration_status()
+        if not registration_open:
+            closed_message = """
+የመጀመሪያውን ዙር ምዝገባ ጨርሰናል:: ከሁለት ሺህ በላይ ከሚሆኑ ዝማሬን ከሚወድዱ እና የዝማሬ ስጦታ እንዳላቸው ከሚያምኑ ወንድሞችና እህቶች ጋር የመተዋወቅን ዕድል አግኝተናል:: እናመሰግናለን::
+
+Registration is currently closed. Thank you for your interest in Chenaniah Worship Ministry.
+            """
+            await update.message.reply_text(closed_message, parse_mode=ParseMode.MARKDOWN)
+            return
+        
         # Check rate limit
         can_submit, message = await self.db.check_rate_limit(user_id, self.MAX_SUBMISSIONS_PER_DAY)
         
@@ -89,6 +100,17 @@ Please provide your full name
         """Handle text messages based on current state"""
         user_id = update.effective_user.id
         text = update.message.text
+        
+        # Check if registration is still open
+        registration_open = await self.db.get_registration_status()
+        if not registration_open:
+            closed_message = """
+የመጀመሪያውን ዙር ምዝገባ ጨርሰናል:: ከሁለት ሺህ በላይ ከሚሆኑ ዝማሬን ከሚወድዱ እና የዝማሬ ስጦታ እንዳላቸው ከሚያምኑ ወንድሞችና እህቶች ጋር የመተዋወቅን ዕድል አግኝተናል:: እናመሰግናለን::
+
+Registration is currently closed. Thank you for your interest in Chenaniah Worship Ministry.
+            """
+            await update.message.reply_text(closed_message, parse_mode=ParseMode.MARKDOWN)
+            return
         
         # Get current user state
         user_data = await self.db.get_user_state(user_id)
@@ -167,6 +189,17 @@ Please provide your full name
     async def handle_audio_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle audio file uploads"""
         user_id = update.effective_user.id
+        
+        # Check if registration is still open
+        registration_open = await self.db.get_registration_status()
+        if not registration_open:
+            closed_message = """
+የመጀመሪያውን ዙር ምዝገባ ጨርሰናል:: ከሁለት ሺህ በላይ ከሚሆኑ ዝማሬን ከሚወድዱ እና የዝማሬ ስጦታ እንዳላቸው ከሚያምኑ ወንድሞችና እህቶች ጋር የመተዋወቅን ዕድል አግኝተናል:: እናመሰግናለን::
+
+Registration is currently closed. Thank you for your interest in Chenaniah Worship Ministry.
+            """
+            await update.message.reply_text(closed_message, parse_mode=ParseMode.MARKDOWN)
+            return
         
         # Get current user state
         user_data = await self.db.get_user_state(user_id)
