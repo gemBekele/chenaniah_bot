@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-10-07T03:41:37.222104",
+  "summary": {
+    "total_tests": 5,
+    "successful_tests": 0,
+    "failed_tests": 5,
+    "success_rate": 0.0
+  },
+  "test_analysis": {
+    "telegram_commands": {
+      "success": false,
+      "timestamp": "2025-10-07T03:41:37.217168",
+      "error": null
+    },
+    "conversation_flow": {
+      "success": false,
+      "timestamp": "2025-10-07T03:41:28.997901",
+      "error": null
+    },
+    "api_endpoints": {
+      "success": false,
+      "timestamp": "2025-10-07T03:41:24.457365",
+      "error": null
+    },
+    "authentication": {
+      "success": false,
+      "timestamp": "2025-10-07T03:41:24.007616",
+      "error": null
+    },
+    "database_operations": {
+      "success": false,
+      "timestamp": "2025-10-07T03:41:23.243974",
+      "error": null
+    }
+  },
+  "recommendations": [
+    "Fix telegram_commands: Unknown error",
+    "Fix conversation_flow: Unknown error",
+    "Fix api_endpoints: Unknown error",
+    "Fix authentication: Unknown error",
+    "Fix database_operations: Unknown error"
+  ]
+}

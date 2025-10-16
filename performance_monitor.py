@@ -1,297 +1,405 @@
-import psutil
-import asyncio
-import logging
-from datetime import datetime
-from typing import Dict, Any, Optional
-from dataclasses import dataclass
-import json
+#!/usr/bin/env python3
+"""
+Performance Monitoring Tool for Chenaniah Bot System
+Monitors system resources, database performance, and API response times
+"""
 
+import asyncio
+import aiohttp
+import psutil
+import sqlite3
+import time
+import json
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, List, Any
+import argparse
+import sys
+from pathlib import Path
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('performance_monitor.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
-@dataclass
-class SystemMetrics:
-    """System performance metrics"""
-    timestamp: str
-    cpu_percent: float
-    memory_percent: float
-    memory_available_mb: float
-    disk_usage_percent: float
-    disk_available_gb: float
-    active_connections: int
-    process_count: int
-    bot_memory_mb: float
-    bot_cpu_percent: float
-    
 class PerformanceMonitor:
-    """
-    Real-time performance monitoring for bot and system resources.
-    Provides alerts when thresholds are exceeded.
-    """
+    def __init__(self, api_base_url: str = "http://localhost:5000", db_path: str = "./vocalist_screening.db"):
+        self.api_base_url = api_base_url
+        self.db_path = db_path
+        self.metrics = []
+        self.session = None
+        
+    async def create_session(self):
+        """Create aiohttp session"""
+        self.session = aiohttp.ClientSession()
+        
+    async def close_session(self):
+        """Close aiohttp session"""
+        if self.session:
+            await self.session.close()
     
-    def __init__(self, check_interval: int = 30):
-        self.check_interval = check_interval
-        self.is_running = False
-        self.monitor_task = None
-        
-        # Thresholds for alerts
-        self.thresholds = {
-            'cpu_percent': 80.0,
-            'memory_percent': 85.0,
-            'disk_percent': 90.0,
-            'queue_percent': 80.0
-        }
-        
-        # Metrics history (last 100 readings)
-        self.metrics_history = []
-        self.max_history = 100
-        
-        # Alert cooldown to prevent spam
-        self.last_alert_time = {}
-        self.alert_cooldown_seconds = 300  # 5 minutes
-        
-        logger.info(f"Performance monitor initialized with {check_interval}s interval")
-    
-    def get_system_metrics(self) -> SystemMetrics:
-        """Collect current system metrics"""
+    def get_system_metrics(self) -> Dict[str, Any]:
+        """Get current system resource usage"""
         try:
-            # CPU metrics
+            # CPU usage
             cpu_percent = psutil.cpu_percent(interval=1)
+            cpu_count = psutil.cpu_count()
             
-            # Memory metrics
+            # Memory usage
             memory = psutil.virtual_memory()
             memory_percent = memory.percent
-            memory_available_mb = memory.available / (1024 * 1024)
+            memory_available = memory.available / (1024**3)  # GB
+            memory_used = memory.used / (1024**3)  # GB
             
-            # Disk metrics
+            # Disk usage
             disk = psutil.disk_usage('/')
-            disk_usage_percent = disk.percent
-            disk_available_gb = disk.free / (1024 * 1024 * 1024)
+            disk_percent = disk.percent
+            disk_free = disk.free / (1024**3)  # GB
+            disk_used = disk.used / (1024**3)  # GB
             
-            # Network connections
-            connections = len(psutil.net_connections())
+            # Network I/O
+            network = psutil.net_io_counters()
             
-            # Process count
-            process_count = len(psutil.pids())
+            # Process information
+            processes = []
+            for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
+                try:
+                    if 'python' in proc.info['name'].lower() or 'node' in proc.info['name'].lower():
+                        processes.append({
+                            'pid': proc.info['pid'],
+                            'name': proc.info['name'],
+                            'cpu_percent': proc.info['cpu_percent'],
+                            'memory_percent': proc.info['memory_percent']
+                        })
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
             
-            # Bot-specific metrics
-            bot_memory_mb = 0
-            bot_cpu_percent = 0
-            
-            try:
-                current_process = psutil.Process()
-                bot_memory_mb = current_process.memory_info().rss / (1024 * 1024)
-                bot_cpu_percent = current_process.cpu_percent()
-            except Exception as e:
-                logger.debug(f"Could not get bot process metrics: {e}")
-            
-            metrics = SystemMetrics(
-                timestamp=datetime.now().isoformat(),
-                cpu_percent=cpu_percent,
-                memory_percent=memory_percent,
-                memory_available_mb=memory_available_mb,
-                disk_usage_percent=disk_usage_percent,
-                disk_available_gb=disk_available_gb,
-                active_connections=connections,
-                process_count=process_count,
-                bot_memory_mb=bot_memory_mb,
-                bot_cpu_percent=bot_cpu_percent
-            )
-            
-            return metrics
-            
+            return {
+                'timestamp': datetime.now().isoformat(),
+                'cpu': {
+                    'percent': cpu_percent,
+                    'count': cpu_count
+                },
+                'memory': {
+                    'percent': memory_percent,
+                    'available_gb': memory_available,
+                    'used_gb': memory_used
+                },
+                'disk': {
+                    'percent': disk_percent,
+                    'free_gb': disk_free,
+                    'used_gb': disk_used
+                },
+                'network': {
+                    'bytes_sent': network.bytes_sent,
+                    'bytes_recv': network.bytes_recv,
+                    'packets_sent': network.packets_sent,
+                    'packets_recv': network.packets_recv
+                },
+                'processes': processes
+            }
         except Exception as e:
-            logger.error(f"Error collecting system metrics: {e}")
-            return None
-    
-    def check_thresholds(self, metrics: SystemMetrics, queue_stats: Optional[Dict] = None) -> list:
-        """
-        Check if any metrics exceed thresholds
-        
-        Returns:
-            List of alert messages
-        """
-        alerts = []
-        current_time = datetime.now()
-        
-        def should_send_alert(alert_type: str) -> bool:
-            """Check if enough time has passed since last alert"""
-            if alert_type not in self.last_alert_time:
-                return True
-            
-            time_since_last = (current_time - self.last_alert_time[alert_type]).total_seconds()
-            return time_since_last >= self.alert_cooldown_seconds
-        
-        # Check CPU
-        if metrics.cpu_percent > self.thresholds['cpu_percent']:
-            if should_send_alert('cpu'):
-                alerts.append(f"⚠️ HIGH CPU USAGE: {metrics.cpu_percent:.1f}% (threshold: {self.thresholds['cpu_percent']}%)")
-                self.last_alert_time['cpu'] = current_time
-        
-        # Check Memory
-        if metrics.memory_percent > self.thresholds['memory_percent']:
-            if should_send_alert('memory'):
-                alerts.append(
-                    f"⚠️ HIGH MEMORY USAGE: {metrics.memory_percent:.1f}% "
-                    f"(available: {metrics.memory_available_mb:.0f} MB)"
-                )
-                self.last_alert_time['memory'] = current_time
-        
-        # Check Disk
-        if metrics.disk_usage_percent > self.thresholds['disk_percent']:
-            if should_send_alert('disk'):
-                alerts.append(
-                    f"⚠️ LOW DISK SPACE: {metrics.disk_usage_percent:.1f}% used "
-                    f"(available: {metrics.disk_available_gb:.1f} GB)"
-                )
-                self.last_alert_time['disk'] = current_time
-        
-        # Check Queue if provided
-        if queue_stats:
-            queue_capacity = (queue_stats.get('current_queue_size', 0) / 1000) * 100
-            if queue_capacity > self.thresholds['queue_percent']:
-                if should_send_alert('queue'):
-                    alerts.append(
-                        f"⚠️ QUEUE FILLING UP: {queue_stats.get('current_queue_size', 0)} items "
-                        f"({queue_capacity:.1f}% capacity)"
-                    )
-                    self.last_alert_time['queue'] = current_time
-        
-        return alerts
-    
-    async def monitor_loop(self, queue=None):
-        """Main monitoring loop"""
-        logger.info("Performance monitoring started")
-        
-        while self.is_running:
-            try:
-                # Collect metrics
-                metrics = self.get_system_metrics()
-                
-                if metrics:
-                    # Store in history
-                    self.metrics_history.append(metrics)
-                    if len(self.metrics_history) > self.max_history:
-                        self.metrics_history.pop(0)
-                    
-                    # Get queue stats if available
-                    queue_stats = queue.get_stats() if queue else None
-                    
-                    # Check thresholds
-                    alerts = self.check_thresholds(metrics, queue_stats)
-                    
-                    # Log alerts
-                    for alert in alerts:
-                        logger.warning(alert)
-                    
-                    # Log current status
-                    logger.info(
-                        f"System Status - CPU: {metrics.cpu_percent:.1f}%, "
-                        f"Memory: {metrics.memory_percent:.1f}% "
-                        f"({metrics.memory_available_mb:.0f} MB available), "
-                        f"Bot: {metrics.bot_memory_mb:.1f} MB, "
-                        f"Connections: {metrics.active_connections}"
-                    )
-                    
-                    if queue_stats:
-                        logger.info(
-                            f"Queue Status - Size: {queue_stats['current_queue_size']}, "
-                            f"Processed: {queue_stats['total_processed']}, "
-                            f"Failed: {queue_stats['total_failed']}, "
-                            f"Avg Processing Time: {queue_stats['average_processing_time']:.2f}s"
-                        )
-                
-                # Wait for next check
-                await asyncio.sleep(self.check_interval)
-                
-            except Exception as e:
-                logger.error(f"Error in monitoring loop: {e}")
-                await asyncio.sleep(self.check_interval)
-    
-    async def start(self, queue=None):
-        """Start performance monitoring"""
-        if self.is_running:
-            logger.warning("Performance monitor is already running")
-            return
-        
-        self.is_running = True
-        self.monitor_task = asyncio.create_task(self.monitor_loop(queue))
-        logger.info("Performance monitor started")
-    
-    async def stop(self):
-        """Stop performance monitoring"""
-        if not self.is_running:
-            return
-        
-        self.is_running = False
-        
-        if self.monitor_task:
-            self.monitor_task.cancel()
-            try:
-                await self.monitor_task
-            except asyncio.CancelledError:
-                pass
-        
-        logger.info("Performance monitor stopped")
-    
-    def get_current_metrics(self) -> Optional[Dict[str, Any]]:
-        """Get the most recent metrics"""
-        if not self.metrics_history:
-            return None
-        
-        metrics = self.metrics_history[-1]
-        return {
-            'timestamp': metrics.timestamp,
-            'cpu_percent': metrics.cpu_percent,
-            'memory_percent': metrics.memory_percent,
-            'memory_available_mb': metrics.memory_available_mb,
-            'disk_usage_percent': metrics.disk_usage_percent,
-            'disk_available_gb': metrics.disk_available_gb,
-            'active_connections': metrics.active_connections,
-            'bot_memory_mb': metrics.bot_memory_mb,
-            'bot_cpu_percent': metrics.bot_cpu_percent
-        }
-    
-    def get_metrics_summary(self) -> Dict[str, Any]:
-        """Get summary statistics from metrics history"""
-        if not self.metrics_history:
+            logger.error(f"Error getting system metrics: {e}")
             return {}
+    
+    def get_database_metrics(self) -> Dict[str, Any]:
+        """Get database performance metrics"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                
+                # Get table sizes
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                tables = cursor.fetchall()
+                
+                table_info = {}
+                for table in tables:
+                    table_name = table[0]
+                    cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+                    count = cursor.fetchone()[0]
+                    
+                    # Get table size (approximate)
+                    cursor.execute(f"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+                    table_info[table_name] = {
+                        'row_count': count
+                    }
+                
+                # Get database file size
+                db_size = Path(self.db_path).stat().st_size if Path(self.db_path).exists() else 0
+                
+                # Get recent activity (last hour)
+                cursor.execute("""
+                    SELECT COUNT(*) FROM submissions 
+                    WHERE submitted_at > datetime('now', '-1 hour')
+                """)
+                recent_submissions = cursor.fetchone()[0]
+                
+                return {
+                    'timestamp': datetime.now().isoformat(),
+                    'database_size_bytes': db_size,
+                    'database_size_mb': db_size / (1024**2),
+                    'table_info': table_info,
+                    'recent_submissions_1h': recent_submissions
+                }
+        except Exception as e:
+            logger.error(f"Error getting database metrics: {e}")
+            return {}
+    
+    async def test_api_endpoints(self) -> Dict[str, Any]:
+        """Test API endpoint response times"""
+        endpoints = [
+            '/api/health',
+            '/api/stats',
+            '/api/submissions'
+        ]
         
-        cpu_values = [m.cpu_percent for m in self.metrics_history]
-        memory_values = [m.memory_percent for m in self.metrics_history]
+        results = {}
+        
+        for endpoint in endpoints:
+            try:
+                start_time = time.time()
+                url = f"{self.api_base_url}{endpoint}"
+                
+                async with self.session.get(url) as response:
+                    response_time = time.time() - start_time
+                    status_code = response.status
+                    
+                    results[endpoint] = {
+                        'response_time': response_time,
+                        'status_code': status_code,
+                        'success': status_code == 200
+                    }
+                    
+            except Exception as e:
+                results[endpoint] = {
+                    'response_time': None,
+                    'status_code': None,
+                    'success': False,
+                    'error': str(e)
+                }
         
         return {
-            'cpu_avg': sum(cpu_values) / len(cpu_values),
-            'cpu_max': max(cpu_values),
-            'cpu_min': min(cpu_values),
-            'memory_avg': sum(memory_values) / len(memory_values),
-            'memory_max': max(memory_values),
-            'memory_min': min(memory_values),
-            'samples': len(self.metrics_history)
+            'timestamp': datetime.now().isoformat(),
+            'endpoints': results
         }
     
-    def export_metrics(self, filepath: str):
-        """Export metrics history to JSON file"""
+    async def monitor_audio_files(self) -> Dict[str, Any]:
+        """Monitor audio file storage"""
         try:
-            data = [
-                {
-                    'timestamp': m.timestamp,
-                    'cpu_percent': m.cpu_percent,
-                    'memory_percent': m.memory_percent,
-                    'memory_available_mb': m.memory_available_mb,
-                    'disk_usage_percent': m.disk_usage_percent,
-                    'disk_available_gb': m.disk_available_gb,
-                    'active_connections': m.active_connections,
-                    'bot_memory_mb': m.bot_memory_mb,
-                    'bot_cpu_percent': m.bot_cpu_percent
-                }
-                for m in self.metrics_history
-            ]
+            audio_dir = Path("audio_files")
+            if not audio_dir.exists():
+                return {'timestamp': datetime.now().isoformat(), 'error': 'Audio directory not found'}
             
-            with open(filepath, 'w') as f:
-                json.dump(data, f, indent=2)
+            total_files = 0
+            total_size = 0
+            file_types = {}
             
-            logger.info(f"Exported {len(data)} metrics to {filepath}")
+            for file_path in audio_dir.rglob("*"):
+                if file_path.is_file():
+                    total_files += 1
+                    file_size = file_path.stat().st_size
+                    total_size += file_size
+                    
+                    ext = file_path.suffix.lower()
+                    file_types[ext] = file_types.get(ext, 0) + 1
             
+            return {
+                'timestamp': datetime.now().isoformat(),
+                'total_files': total_files,
+                'total_size_bytes': total_size,
+                'total_size_mb': total_size / (1024**2),
+                'file_types': file_types
+            }
         except Exception as e:
-            logger.error(f"Error exporting metrics: {e}")
+            logger.error(f"Error monitoring audio files: {e}")
+            return {'timestamp': datetime.now().isoformat(), 'error': str(e)}
+    
+    async def collect_metrics(self) -> Dict[str, Any]:
+        """Collect all metrics"""
+        await self.create_session()
+        
+        metrics = {
+            'timestamp': datetime.now().isoformat(),
+            'system': self.get_system_metrics(),
+            'database': self.get_database_metrics(),
+            'api': await self.test_api_endpoints(),
+            'audio_files': await self.monitor_audio_files()
+        }
+        
+        await self.close_session()
+        return metrics
+    
+    async def monitor_continuously(self, interval_seconds: int = 30, duration_minutes: int = 10):
+        """Monitor system continuously for specified duration"""
+        logger.info(f"Starting continuous monitoring for {duration_minutes} minutes (interval: {interval_seconds}s)")
+        
+        start_time = time.time()
+        end_time = start_time + (duration_minutes * 60)
+        
+        while time.time() < end_time:
+            try:
+                metrics = await self.collect_metrics()
+                self.metrics.append(metrics)
+                
+                # Log key metrics
+                system = metrics.get('system', {})
+                cpu = system.get('cpu', {}).get('percent', 0)
+                memory = system.get('memory', {}).get('percent', 0)
+                
+                logger.info(f"CPU: {cpu:.1f}%, Memory: {memory:.1f}%")
+                
+                await asyncio.sleep(interval_seconds)
+                
+            except KeyboardInterrupt:
+                logger.info("Monitoring interrupted by user")
+                break
+            except Exception as e:
+                logger.error(f"Error during monitoring: {e}")
+                await asyncio.sleep(interval_seconds)
+        
+        logger.info("Continuous monitoring completed")
+    
+    def analyze_metrics(self) -> Dict[str, Any]:
+        """Analyze collected metrics and provide insights"""
+        if not self.metrics:
+            return {'error': 'No metrics collected'}
+        
+        # System metrics analysis
+        cpu_values = [m.get('system', {}).get('cpu', {}).get('percent', 0) for m in self.metrics]
+        memory_values = [m.get('system', {}).get('memory', {}).get('percent', 0) for m in self.metrics]
+        
+        # API response times
+        api_times = []
+        for m in self.metrics:
+            api = m.get('api', {}).get('endpoints', {})
+            for endpoint, data in api.items():
+                if data.get('response_time'):
+                    api_times.append(data['response_time'])
+        
+        analysis = {
+            'timestamp': datetime.now().isoformat(),
+            'total_samples': len(self.metrics),
+            'system_analysis': {
+                'cpu': {
+                    'avg': sum(cpu_values) / len(cpu_values) if cpu_values else 0,
+                    'max': max(cpu_values) if cpu_values else 0,
+                    'min': min(cpu_values) if cpu_values else 0
+                },
+                'memory': {
+                    'avg': sum(memory_values) / len(memory_values) if memory_values else 0,
+                    'max': max(memory_values) if memory_values else 0,
+                    'min': min(memory_values) if memory_values else 0
+                }
+            },
+            'api_analysis': {
+                'avg_response_time': sum(api_times) / len(api_times) if api_times else 0,
+                'max_response_time': max(api_times) if api_times else 0,
+                'min_response_time': min(api_times) if api_times else 0
+            },
+            'recommendations': self.generate_recommendations(cpu_values, memory_values, api_times)
+        }
+        
+        return analysis
+    
+    def generate_recommendations(self, cpu_values: List[float], memory_values: List[float], api_times: List[float]) -> List[str]:
+        """Generate performance recommendations based on metrics"""
+        recommendations = []
+        
+        if cpu_values:
+            avg_cpu = sum(cpu_values) / len(cpu_values)
+            max_cpu = max(cpu_values)
+            
+            if avg_cpu > 80:
+                recommendations.append("High CPU usage detected. Consider optimizing code or scaling up.")
+            if max_cpu > 95:
+                recommendations.append("CPU usage spikes detected. Monitor for bottlenecks.")
+        
+        if memory_values:
+            avg_memory = sum(memory_values) / len(memory_values)
+            max_memory = max(memory_values)
+            
+            if avg_memory > 80:
+                recommendations.append("High memory usage detected. Consider memory optimization.")
+            if max_memory > 95:
+                recommendations.append("Memory usage spikes detected. Check for memory leaks.")
+        
+        if api_times:
+            avg_api_time = sum(api_times) / len(api_times)
+            max_api_time = max(api_times)
+            
+            if avg_api_time > 2.0:
+                recommendations.append("Slow API response times detected. Consider database optimization.")
+            if max_api_time > 5.0:
+                recommendations.append("API response time spikes detected. Check for blocking operations.")
+        
+        if not recommendations:
+            recommendations.append("System performance appears to be within normal ranges.")
+        
+        return recommendations
+    
+    def save_metrics(self, filename: str = None):
+        """Save collected metrics to JSON file"""
+        if not filename:
+            filename = f"performance_metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        
+        with open(filename, 'w') as f:
+            json.dump(self.metrics, f, indent=2)
+        
+        logger.info(f"Performance metrics saved to {filename}")
+    
+    def save_analysis(self, filename: str = None):
+        """Save analysis results to JSON file"""
+        if not filename:
+            filename = f"performance_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        
+        analysis = self.analyze_metrics()
+        
+        with open(filename, 'w') as f:
+            json.dump(analysis, f, indent=2)
+        
+        logger.info(f"Performance analysis saved to {filename}")
+        
+        # Print recommendations
+        recommendations = analysis.get('recommendations', [])
+        if recommendations:
+            logger.info("Performance Recommendations:")
+            for i, rec in enumerate(recommendations, 1):
+                logger.info(f"  {i}. {rec}")
 
+async def main():
+    parser = argparse.ArgumentParser(description='Performance Monitoring Tool')
+    parser.add_argument('--api-url', default='http://localhost:5000', help='API base URL')
+    parser.add_argument('--db-path', default='./vocalist_screening.db', help='Database path')
+    parser.add_argument('--interval', type=int, default=30, help='Monitoring interval in seconds')
+    parser.add_argument('--duration', type=int, default=10, help='Monitoring duration in minutes')
+    parser.add_argument('--analyze-only', action='store_true', help='Only analyze existing metrics')
+    
+    args = parser.parse_args()
+    
+    monitor = PerformanceMonitor(args.api_url, args.db_path)
+    
+    try:
+        if args.analyze_only:
+            # Load existing metrics and analyze
+            monitor.metrics = json.load(open('performance_metrics_latest.json', 'r'))
+            monitor.save_analysis()
+        else:
+            # Run continuous monitoring
+            await monitor.monitor_continuously(args.interval, args.duration)
+            monitor.save_metrics()
+            monitor.save_analysis()
+        
+    except KeyboardInterrupt:
+        logger.info("Monitoring interrupted by user")
+    except Exception as e:
+        logger.error(f"Monitoring failed: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    asyncio.run(main())

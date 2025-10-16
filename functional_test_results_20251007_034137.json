@@ -1,0 +1,124 @@
+[
+  {
+    "test_name": "telegram_commands",
+    "timestamp": "2025-10-07T03:41:37.217168",
+    "results": {
+      "start_command": {
+        "success": false,
+        "response": {
+          "ok": false,
+          "error_code": 400,
+          "description": "Bad Request: chat not found"
+        }
+      },
+      "help_command": {
+        "success": false,
+        "response": {
+          "ok": false,
+          "error_code": 400,
+          "description": "Bad Request: chat not found"
+        }
+      },
+      "status_command": {
+        "success": false,
+        "response": {
+          "ok": false,
+          "error_code": 400,
+          "description": "Bad Request: chat not found"
+        }
+      }
+    }
+  },
+  {
+    "test_name": "conversation_flow",
+    "timestamp": "2025-10-07T03:41:28.997901",
+    "results": {
+      "name_input": {
+        "success": false,
+        "response": {
+          "ok": false,
+          "error_code": 400,
+          "description": "Bad Request: chat not found"
+        }
+      },
+      "address_input": {
+        "success": false,
+        "response": {
+          "ok": false,
+          "error_code": 400,
+          "description": "Bad Request: chat not found"
+        }
+      },
+      "phone_input": {
+        "success": false,
+        "response": {
+          "ok": false,
+          "error_code": 400,
+          "description": "Bad Request: chat not found"
+        }
+      },
+      "church_input": {
+        "success": false,
+        "response": {
+          "ok": false,
+          "error_code": 400,
+          "description": "Bad Request: chat not found"
+        }
+      }
+    }
+  },
+  {
+    "test_name": "api_endpoints",
+    "timestamp": "2025-10-07T03:41:24.457365",
+    "results": {
+      "health": {
+        "success": false,
+        "error": "0, message='Attempt to decode JSON with unexpected mimetype: text/html; charset=utf-8', url=URL('https://www.chenaniah.org/api//api/health')"
+      },
+      "stats": {
+        "success": false,
+        "error": "0, message='Attempt to decode JSON with unexpected mimetype: text/html; charset=utf-8', url=URL('https://www.chenaniah.org/api//api/stats')"
+      },
+      "submissions": {
+        "success": false,
+        "error": "0, message='Attempt to decode JSON with unexpected mimetype: text/html; charset=utf-8', url=URL('https://www.chenaniah.org/api//api/submissions')"
+      }
+    }
+  },
+  {
+    "test_name": "authentication",
+    "timestamp": "2025-10-07T03:41:24.007616",
+    "results": {
+      "login": {
+        "success": false,
+        "error": "0, message='Attempt to decode JSON with unexpected mimetype: text/html; charset=utf-8', url=URL('https://www.chenaniah.org/api//api/auth/login')"
+      },
+      "authenticated_request": {
+        "success": false,
+        "error": "No token received"
+      }
+    }
+  },
+  {
+    "test_name": "database_operations",
+    "timestamp": "2025-10-07T03:41:23.243974",
+    "results": {
+      "tables_exist": {
+        "success": true,
+        "tables": [
+          "users",
+          "sqlite_sequence",
+          "submissions"
+        ]
+      },
+      "user_state_check": {
+        "success": true,
+        "user_exists": false
+      },
+      "submissions_count": {
+        "success": true,
+        "count": 18
+      }
+    }
+  }
+]

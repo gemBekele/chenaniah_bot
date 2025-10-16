@@ -1,0 +1,2471 @@
+[
+  {
+    "test_type": "api_load_test",
+    "total_requests": 50,
+    "concurrent_limit": 10,
+    "total_duration": 36.40089201927185,
+    "successful_tests": 50,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "response_times": {
+      "average": 1.7134045958518982,
+      "maximum": 13.024474620819092,
+      "minimum": 0.6977190971374512,
+      "total_samples": 200
+    },
+    "throughput": 1.373592712330465,
+    "timestamp": "2025-10-07T03:44:05.285775",
+    "detailed_results": [
+      {
+        "test_id": 0,
+        "timestamp": "2025-10-07T03:43:32.658279",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:30.081591",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.1890337467193604,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 0
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:30.911161",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8280997276306152,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 0
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:32.658244",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.902355432510376,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8190569877624512,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 0
+        }
+      },
+      {
+        "test_id": 1,
+        "timestamp": "2025-10-07T03:43:32.657061",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:30.067362",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9468626976013184,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 1
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:30.906259",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8358075618743896,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 1
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:32.656988",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.907923698425293,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8163866996765137,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 1
+        }
+      },
+      {
+        "test_id": 2,
+        "timestamp": "2025-10-07T03:43:32.617467",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:30.070360",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9456663131713867,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 2
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:30.904768",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8322994709014893,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 2
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:32.617430",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9074916839599609,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7822232246398926,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 2
+        }
+      },
+      {
+        "test_id": 3,
+        "timestamp": "2025-10-07T03:43:32.862059",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:30.083252",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.960669994354248,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 3
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:31.203334",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.1025538444519043,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 3
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:32.861971",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9036996364593506,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7325184345245361,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 3
+        }
+      },
+      {
+        "test_id": 4,
+        "timestamp": "2025-10-07T03:43:33.135231",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:30.609266",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.4519743919372559,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 4
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:31.529552",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9122188091278076,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 4
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:33.135039",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8346753120422363,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7676248550415039,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 4
+        }
+      },
+      {
+        "test_id": 5,
+        "timestamp": "2025-10-07T03:43:32.889640",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:30.078830",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9564111232757568,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 5
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:31.201132",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.1050448417663574,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 5
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:32.889593",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9271326065063477,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7541992664337158,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 5
+        }
+      },
+      {
+        "test_id": 6,
+        "timestamp": "2025-10-07T03:43:37.518852",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:31.183496",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 2.0560569763183594,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 6
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:32.127113",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9223885536193848,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 6
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:37.518823",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7611873149871826,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 4.628529071807861,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 6
+        }
+      },
+      {
+        "test_id": 7,
+        "timestamp": "2025-10-07T03:43:33.094305",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:30.624054",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.484389305114746,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 7
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:31.527918",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8962345123291016,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 7
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:33.094238",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8221235275268555,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.741952657699585,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 7
+        }
+      },
+      {
+        "test_id": 8,
+        "timestamp": "2025-10-07T03:43:32.621784",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:30.065097",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9293851852416992,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 8
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:30.917475",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8506934642791748,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 8
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:32.621723",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8947486877441406,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7839581966400146,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 8
+        }
+      },
+      {
+        "test_id": 9,
+        "timestamp": "2025-10-07T03:43:36.663140",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:30.072745",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9305682182312012,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 9
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:31.846183",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.768097162246704,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 9
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:36.663082",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8067507743835449,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 4.0051493644714355,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 9
+        }
+      },
+      {
+        "test_id": 10,
+        "timestamp": "2025-10-07T03:43:42.209985",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:37.017369",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 4.397333145141602,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 10
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:39.567444",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 2.5488908290863037,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 10
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:42.209932",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7329704761505127,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 1.905449628829956,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 10
+        }
+      },
+      {
+        "test_id": 11,
+        "timestamp": "2025-10-07T03:43:48.836856",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:35.003716",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 2.379303216934204,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 11
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:35.993915",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9884145259857178,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 11
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:48.836796",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 12.091848611831665,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7437231540679932,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 11
+        }
+      },
+      {
+        "test_id": 12,
+        "timestamp": "2025-10-07T03:43:48.265089",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:36.184403",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 3.522050380706787,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 12
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:39.631253",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 3.4449336528778076,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 12
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:48.261481",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 6.1044416427612305,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 2.5203046798706055,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 12
+        }
+      },
+      {
+        "test_id": 13,
+        "timestamp": "2025-10-07T03:43:48.803617",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:45.445688",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 12.779811143875122,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 13
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:47.284177",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.837355375289917,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 13
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:48.803579",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8006682395935059,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7122025489807129,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 13
+        }
+      },
+      {
+        "test_id": 14,
+        "timestamp": "2025-10-07T03:43:43.900892",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:36.138305",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 3.2746269702911377,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 14
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:39.790430",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 3.648941993713379,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 14
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:43.900854",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 2.8537368774414062,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 1.249863862991333,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 14
+        }
+      },
+      {
+        "test_id": 15,
+        "timestamp": "2025-10-07T03:43:48.604835",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:34.845715",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.9451251029968262,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 15
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:46.970576",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 12.123360395431519,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 15
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:48.604798",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8159453868865967,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8056144714355469,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 15
+        }
+      },
+      {
+        "test_id": 16,
+        "timestamp": "2025-10-07T03:43:47.790678",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:36.700608",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 3.6047732830047607,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 16
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:40.517574",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 3.8155128955841064,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 16
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:47.790644",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 6.464179992675781,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8031008243560791,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 16
+        }
+      },
+      {
+        "test_id": 17,
+        "timestamp": "2025-10-07T03:43:48.320945",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:46.029668",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 12.892738103866577,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 17
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:46.779087",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7480976581573486,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 17
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:48.320892",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7074768543243408,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8295130729675293,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 17
+        }
+      },
+      {
+        "test_id": 18,
+        "timestamp": "2025-10-07T03:43:51.913683",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:49.689050",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 13.024474620819092,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 18
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:50.391848",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7016172409057617,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 18
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:51.913672",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.6977190971374512,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.782874345779419,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 18
+        }
+      },
+      {
+        "test_id": 19,
+        "timestamp": "2025-10-07T03:43:46.778939",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:44.195541",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 6.667065858840942,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 19
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:45.112679",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9144680500030518,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 19
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:46.778904",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9289710521697998,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7298421859741211,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 19
+        }
+      },
+      {
+        "test_id": 20,
+        "timestamp": "2025-10-07T03:43:48.321110",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:44.801247",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 2.5859532356262207,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 20
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:45.734472",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.922003984451294,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 20
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:48.321088",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 1.7992300987243652,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7844371795654297,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 20
+        }
+      },
+      {
+        "test_id": 21,
+        "timestamp": "2025-10-07T03:43:49.157528",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:44.812246",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9098396301269531,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 21
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:45.741226",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9245579242706299,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 21
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:49.157480",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 2.6926064491271973,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.721076250076294,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 21
+        }
+      },
+      {
+        "test_id": 22,
+        "timestamp": "2025-10-07T03:43:49.816637",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:47.489757",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7065823078155518,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 22
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:48.328673",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8369927406311035,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 22
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:49.816583",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7386307716369629,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7440171241760254,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 22
+        }
+      },
+      {
+        "test_id": 23,
+        "timestamp": "2025-10-07T03:43:50.813408",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:48.607306",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8089194297790527,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 23
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:49.336305",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7268149852752686,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 23
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:50.813373",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7674801349639893,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7075181007385254,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 23
+        }
+      },
+      {
+        "test_id": 24,
+        "timestamp": "2025-10-07T03:43:51.214836",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:48.998423",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7314918041229248,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 24
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:49.743376",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7437665462493896,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 24
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:51.214825",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7588639259338379,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7101902961730957,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 24
+        }
+      },
+      {
+        "test_id": 25,
+        "timestamp": "2025-10-07T03:43:51.214762",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:49.054552",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7296297550201416,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 25
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:49.783657",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.727755069732666,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 25
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:51.214732",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7153284549713135,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7116785049438477,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 25
+        }
+      },
+      {
+        "test_id": 26,
+        "timestamp": "2025-10-07T03:43:51.239876",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:49.056777",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7285346984863281,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 26
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:49.816775",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7577643394470215,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 26
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:51.239836",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7110245227813721,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7088570594787598,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 26
+        }
+      },
+      {
+        "test_id": 27,
+        "timestamp": "2025-10-07T03:43:51.600895",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:49.337865",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7290449142456055,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 27
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:50.114601",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7749800682067871,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 27
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:51.600849",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7149989604949951,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7609677314758301,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 27
+        }
+      },
+      {
+        "test_id": 28,
+        "timestamp": "2025-10-07T03:43:51.913616",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:49.524980",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7200303077697754,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 28
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:50.246465",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7195749282836914,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 28
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:51.913604",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7482225894927979,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.876760721206665,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 28
+        }
+      },
+      {
+        "test_id": 29,
+        "timestamp": "2025-10-07T03:43:51.913525",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:49.578256",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7385420799255371,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 29
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:50.296252",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7165753841400146,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 29
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:51.913486",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7251689434051514,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8471016883850098,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 29
+        }
+      },
+      {
+        "test_id": 30,
+        "timestamp": "2025-10-07T03:43:52.207638",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:49.887968",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7282488346099854,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 30
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:50.597761",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7086756229400635,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 30
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:52.207592",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7202732563018799,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8719592094421387,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 30
+        }
+      },
+      {
+        "test_id": 31,
+        "timestamp": "2025-10-07T03:43:53.222063",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:50.530773",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7082867622375488,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 31
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:51.257593",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7257490158081055,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 31
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:53.221972",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9356067180633545,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9932165145874023,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 31
+        }
+      },
+      {
+        "test_id": 32,
+        "timestamp": "2025-10-07T03:43:54.454973",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:51.599126",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.7768335342407227,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 32
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:52.612733",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.008471965789795,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 32
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:54.454922",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8962774276733398,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8879210948944092,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 32
+        }
+      },
+      {
+        "test_id": 33,
+        "timestamp": "2025-10-07T03:43:55.072177",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:52.188638",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9620094299316406,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 33
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:53.227505",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.015697717666626,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 33
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:55.072153",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9198846817016602,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.912949800491333,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 33
+        }
+      },
+      {
+        "test_id": 34,
+        "timestamp": "2025-10-07T03:43:55.062890",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:52.186548",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9593589305877686,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 34
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:53.226028",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.0162053108215332,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 34
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:55.062852",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9207658767700195,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8917434215545654,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 34
+        }
+      },
+      {
+        "test_id": 35,
+        "timestamp": "2025-10-07T03:43:55.071954",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:52.205470",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9501702785491943,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 35
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:53.224239",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9962379932403564,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 35
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:55.071897",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9242947101593018,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9108736515045166,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 35
+        }
+      },
+      {
+        "test_id": 36,
+        "timestamp": "2025-10-07T03:43:55.375044",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:52.611046",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.0027668476104736,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 36
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:53.539500",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8965928554534912,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 36
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:55.374974",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8901872634887695,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8953137397766113,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 36
+        }
+      },
+      {
+        "test_id": 37,
+        "timestamp": "2025-10-07T03:43:55.675117",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:52.936345",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9772229194641113,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 37
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:53.862370",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8874683380126953,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 37
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:55.675052",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8738899230957031,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8936686515808105,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 37
+        }
+      },
+      {
+        "test_id": 38,
+        "timestamp": "2025-10-07T03:43:55.667766",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:52.934713",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9746425151824951,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 38
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:53.865595",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8920712471008301,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 38
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:55.667746",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8716692924499512,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8622164726257324,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 38
+        }
+      },
+      {
+        "test_id": 39,
+        "timestamp": "2025-10-07T03:43:55.667616",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:52.933157",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9723732471466064,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 39
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:53.864058",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8924148082733154,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 39
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:55.667570",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8738477230072021,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8605339527130127,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 39
+        }
+      },
+      {
+        "test_id": 40,
+        "timestamp": "2025-10-07T03:43:56.828844",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:53.222221",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.9864914417266846,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 40
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:54.143145",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8989307880401611,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 40
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:43:56.828806",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.9230673313140869,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 1.7543768882751465,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 40
+        }
+      },
+      {
+        "test_id": 41,
+        "timestamp": "2025-10-07T03:44:04.787367",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:54.144801",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8909540176391602,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 41
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:55.072268",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.920724630355835,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 41
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:44:04.787356",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.825843334197998,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 8.870688676834106,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 41
+        }
+      },
+      {
+        "test_id": 42,
+        "timestamp": "2025-10-07T03:44:04.787290",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:55.372876",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8862123489379883,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 42
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:44:03.039264",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 7.655330181121826,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 42
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:44:04.787250",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8683366775512695,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8615922927856445,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 42
+        }
+      },
+      {
+        "test_id": 43,
+        "timestamp": "2025-10-07T03:44:05.032301",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:56.843294",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.7718064785003662,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 43
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:44:03.371833",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 6.52354621887207,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 43
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:44:05.032238",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7832322120666504,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8573112487792969,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 43
+        }
+      },
+      {
+        "test_id": 44,
+        "timestamp": "2025-10-07T03:44:03.656292",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:55.899335",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8174183368682861,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 44
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:59.361393",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 3.4608497619628906,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 44
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:44:03.656282",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 3.421663999557495,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8601267337799072,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 44
+        }
+      },
+      {
+        "test_id": 45,
+        "timestamp": "2025-10-07T03:44:02.782223",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:55.892352",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8095862865447998,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 45
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:58.113499",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 2.22001051902771,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 45
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:44:02.782187",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 2.645916700363159,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 2.017930030822754,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 45
+        }
+      },
+      {
+        "test_id": 46,
+        "timestamp": "2025-10-07T03:44:03.656218",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:59.057171",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 3.6743335723876953,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 46
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:44:01.357525",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 2.299271583557129,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 46
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:44:03.656186",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 1.42179274559021,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8622965812683105,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 46
+        }
+      },
+      {
+        "test_id": 47,
+        "timestamp": "2025-10-07T03:44:03.661643",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:56.874269",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 1.201749324798584,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 47
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:43:59.348764",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 2.472503900527954,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 47
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:44:03.661598",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 3.4352831840515137,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8711762428283691,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 47
+        }
+      },
+      {
+        "test_id": 48,
+        "timestamp": "2025-10-07T03:44:05.019256",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:43:59.788796",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 4.114684581756592,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 48
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:44:03.375166",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 3.581625461578369,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 48
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:44:05.019082",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.7990946769714355,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8411376476287842,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 48
+        }
+      },
+      {
+        "test_id": 49,
+        "timestamp": "2025-10-07T03:44:05.284539",
+        "health": {
+          "test_name": "health_endpoint",
+          "timestamp": "2025-10-07T03:44:02.767379",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 7.087954759597778,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/health"
+          },
+          "test_id": 49
+        },
+        "auth": {
+          "test_name": "auth_endpoint",
+          "timestamp": "2025-10-07T03:44:03.660090",
+          "result": {
+            "success": false,
+            "status_code": 404,
+            "response_time": 0.8887002468109131,
+            "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+            "url": "https://www.chenaniah.org/api/api/auth/login"
+          },
+          "test_id": 49
+        },
+        "protected": {
+          "test_name": "protected_endpoints",
+          "timestamp": "2025-10-07T03:44:05.284500",
+          "results": {
+            "stats": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8025624752044678,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/stats"
+            },
+            "submissions": {
+              "success": false,
+              "status_code": 404,
+              "response_time": 0.8092150688171387,
+              "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+              "url": "https://www.chenaniah.org/api/api/submissions"
+            }
+          },
+          "test_id": 49
+        }
+      }
+    ]
+  }
+]

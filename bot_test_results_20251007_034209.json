@@ -1,0 +1,136 @@
+[
+  {
+    "test_type": "load_test",
+    "total_users": 10,
+    "concurrent_limit": 3,
+    "total_duration": 5.281331777572632,
+    "successful_tests": 0,
+    "failed_tests": 10,
+    "success_rate": 0.0,
+    "average_duration": 0,
+    "throughput": 0.0,
+    "timestamp": "2025-10-07T03:42:09.249596",
+    "detailed_results": [
+      {
+        "user_id": 493038963,
+        "test_name": "load_test_10",
+        "duration": 1.9257721900939941,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:05.893290"
+      },
+      {
+        "user_id": 612217950,
+        "test_name": "load_test_10",
+        "duration": 1.2061493396759033,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:05.414485"
+      },
+      {
+        "user_id": 786069112,
+        "test_name": "load_test_10",
+        "duration": 5.0383620262146,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:09.248054"
+      },
+      {
+        "user_id": 184648765,
+        "test_name": "load_test_10",
+        "duration": 0.3411133289337158,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:05.755770"
+      },
+      {
+        "user_id": 124713910,
+        "test_name": "load_test_10",
+        "duration": 0.2770717144012451,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:06.033026"
+      },
+      {
+        "user_id": 789054808,
+        "test_name": "load_test_10",
+        "duration": 0.2835414409637451,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:06.176987"
+      },
+      {
+        "user_id": 201751891,
+        "test_name": "load_test_10",
+        "duration": 0.3035309314727783,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:06.336729"
+      },
+      {
+        "user_id": 978505291,
+        "test_name": "load_test_10",
+        "duration": 0.2949998378753662,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:06.472208"
+      },
+      {
+        "user_id": 561998242,
+        "test_name": "load_test_10",
+        "duration": 0.26067590713500977,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:06.597590"
+      },
+      {
+        "user_id": 426192301,
+        "test_name": "load_test_10",
+        "duration": 0.24573969841003418,
+        "steps_completed": 0,
+        "conversation_steps": [],
+        "errors": [
+          "Telegram API error: 400 - {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}"
+        ],
+        "success": false,
+        "timestamp": "2025-10-07T03:42:06.718114"
+      }
+    ]
+  }
+]
