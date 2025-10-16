@@ -219,6 +219,46 @@ def serve_audio(file_path):
         logger.error(f"Error serving audio file: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/registration/status', methods=['GET'])
+@token_required
+def get_registration_status():
+    """Get current registration status"""
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        is_open = loop.run_until_complete(db.get_registration_status())
+        loop.close()
+        
+        return jsonify({
+            'success': True,
+            'registration_open': is_open
+        })
+    except Exception as e:
+        logger.error(f"Error getting registration status: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/registration/status', methods=['PUT'])
+@token_required
+def set_registration_status():
+    """Set registration status"""
+    try:
+        data = request.get_json()
+        is_open = data.get('registration_open', True)
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(db.set_registration_status(is_open))
+        loop.close()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Registration {"opened" if is_open else "closed"} successfully',
+            'registration_open': is_open
+        })
+    except Exception as e:
+        logger.error(f"Error setting registration status: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""

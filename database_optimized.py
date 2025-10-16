@@ -125,6 +125,21 @@ class DatabaseOptimized:
             )
         ''')
         
+        # Create settings table for system configuration
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS settings (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Insert default registration status (open)
+        cursor.execute('''
+            INSERT OR IGNORE INTO settings (key, value) 
+            VALUES ('registration_open', 'true')
+        ''')
+        
         conn.commit()
         conn.close()
         
@@ -371,6 +386,24 @@ class DatabaseOptimized:
         await self.update_user_state(user_id, state='idle', name=None, 
                                    address=None, phone=None, audio_file_id=None, 
                                    audio_drive_link=None, audio_file_path=None)
+    
+    async def get_registration_status(self) -> bool:
+        """Get current registration status"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT value FROM settings WHERE key = ?', ('registration_open',))
+            row = cursor.fetchone()
+            return row and row[0].lower() == 'true'
+    
+    async def set_registration_status(self, is_open: bool) -> None:
+        """Set registration status"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT OR REPLACE INTO settings (key, value, updated_at)
+                VALUES (?, ?, CURRENT_TIMESTAMP)
+            ''', ('registration_open', 'true' if is_open else 'false'))
+            conn.commit()
     
     def close(self):
         """Close all connections in the pool"""
