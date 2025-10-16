@@ -30,7 +30,7 @@ class VocalistScreeningBotOptimized:
         self.db = DatabaseOptimized(pool_size=10)
         self.storage_service = LocalStorageService()
         self.submission_queue = SubmissionQueue(max_workers=5, max_queue_size=1000)
-        self.performance_monitor = PerformanceMonitor(check_interval=30)
+        self.performance_monitor = PerformanceMonitor()
         self.application = None
         
         # Configuration
