@@ -16,13 +16,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-# Enable CORS for all routes - this should automatically handle OPTIONS
+# Enable CORS for all routes - explicitly allow chenaniah.org and chenaniah.com
 CORS(app, resources={
     r"/api/*": {
-        "origins": "*",
+        "origins": ["https://chenaniah.org", "https://www.chenaniah.org", "https://chenaniah.com", "https://www.chenaniah.com", "*"],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": False
+        "supports_credentials": False,
+        "expose_headers": ["Content-Type", "Authorization"]
     }
 }, automatic_options=True, send_wildcard=True)
 
@@ -68,9 +69,21 @@ def login():
     # Handle CORS preflight
     if request.method == 'OPTIONS':
         response = jsonify({})
-        response.headers.add('Access-Control-Allow-Origin', '*')
+        origin = request.headers.get('Origin', '*')
+        # Allow requests from chenaniah.org and chenaniah.com
+        allowed_origins = [
+            'https://chenaniah.org',
+            'https://www.chenaniah.org',
+            'https://chenaniah.com',
+            'https://www.chenaniah.com'
+        ]
+        if origin in allowed_origins:
+            response.headers.add('Access-Control-Allow-Origin', origin)
+        else:
+            response.headers.add('Access-Control-Allow-Origin', '*')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        response.headers.add('Access-Control-Max-Age', '3600')
         return response
     
     data = request.get_json()
@@ -85,13 +98,39 @@ def login():
             algorithm='HS256'
         )
         
-        return jsonify({
+        response = jsonify({
             'success': True,
             'token': token,
             'username': username
         })
+        # Add CORS headers to response
+        origin = request.headers.get('Origin', '*')
+        allowed_origins = [
+            'https://chenaniah.org',
+            'https://www.chenaniah.org',
+            'https://chenaniah.com',
+            'https://www.chenaniah.com'
+        ]
+        if origin in allowed_origins:
+            response.headers.add('Access-Control-Allow-Origin', origin)
+        else:
+            response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
     
-    return jsonify({'error': 'Invalid credentials'}), 401
+    response = jsonify({'error': 'Invalid credentials'})
+    # Add CORS headers to error response too
+    origin = request.headers.get('Origin', '*')
+    allowed_origins = [
+        'https://chenaniah.org',
+        'https://www.chenaniah.org',
+        'https://chenaniah.com',
+        'https://www.chenaniah.com'
+    ]
+    if origin in allowed_origins:
+        response.headers.add('Access-Control-Allow-Origin', origin)
+    else:
+        response.headers.add('Access-Control-Allow-Origin', '*')
+    return response, 401
 
 @app.route('/api/submissions', methods=['GET'])
 @token_required
