@@ -139,6 +139,59 @@ class DatabaseOptimized:
             INSERT OR IGNORE INTO settings (key, value) 
             VALUES ('registration_open', 'true')
         ''')
+
+        # Insert default SMS settings
+        cursor.execute('''
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('sms_enabled', 'false')
+        ''')
+        cursor.execute('''
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('sms_sender_id', '')
+        ''')
+        cursor.execute('''
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('sms_template_approved', 'Dear {name}, your application has been approved. - Chenaniah')
+        ''')
+        cursor.execute('''
+            INSERT OR IGNORE INTO settings (key, value)
+            VALUES ('sms_template_rejected', 'Dear {name}, your application was not approved at this time. - Chenaniah')
+        ''')
+        
+        # Create scheduling tables
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS time_slots (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                time TEXT NOT NULL,
+                label TEXT NOT NULL,
+                date TEXT NOT NULL,
+                available BOOLEAN DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(time, date)
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS appointments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                applicant_name TEXT NOT NULL,
+                applicant_email TEXT NOT NULL,
+                applicant_phone TEXT NOT NULL,
+                scheduled_date TEXT NOT NULL,
+                scheduled_time TEXT NOT NULL,
+                status TEXT DEFAULT 'scheduled',
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Create indexes for scheduling tables
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_time_slots_date ON time_slots(date)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_time_slots_available ON time_slots(available)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_appointments_status ON appointments(status)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(scheduled_date)')
         
         conn.commit()
         conn.close()
@@ -404,6 +457,165 @@ class DatabaseOptimized:
                 VALUES (?, ?, CURRENT_TIMESTAMP)
             ''', ('registration_open', 'true' if is_open else 'false'))
             conn.commit()
+
+    async def get_sms_settings(self) -> dict:
+        """Return SMS settings (enabled, sender_id, templates)"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            keys = [
+                'sms_enabled',
+                'sms_sender_id',
+                'sms_template_approved',
+                'sms_template_rejected',
+            ]
+            placeholders = ','.join('?' for _ in keys)
+            cursor.execute(f'SELECT key, value FROM settings WHERE key IN ({placeholders})', keys)
+            rows = cursor.fetchall()
+            result = {row['key']: row['value'] for row in rows}
+            return {
+                'enabled': (result.get('sms_enabled', 'false').lower() == 'true'),
+                'sender_id': result.get('sms_sender_id', ''),
+                'template_approved': result.get('sms_template_approved', ''),
+                'template_rejected': result.get('sms_template_rejected', ''),
+            }
+
+    async def set_sms_settings(self, enabled: bool, sender_id: str, template_approved: str, template_rejected: str) -> None:
+        """Update SMS settings atomically"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            updates = [
+                ('sms_enabled', 'true' if enabled else 'false'),
+                ('sms_sender_id', sender_id or ''),
+                ('sms_template_approved', template_approved or ''),
+                ('sms_template_rejected', template_rejected or ''),
+            ]
+            for key, value in updates:
+                cursor.execute('''
+                    INSERT OR REPLACE INTO settings (key, value, updated_at)
+                    VALUES (?, ?, CURRENT_TIMESTAMP)
+                ''', (key, value))
+            conn.commit()
+    
+    # Scheduling Methods
+    
+    async def get_schedule_stats(self) -> Dict[str, int]:
+        """Get scheduling statistics"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Get appointment counts by status
+            cursor.execute('''
+                SELECT 
+                    COUNT(*) as total_appointments,
+                    SUM(CASE WHEN status = 'scheduled' THEN 1 ELSE 0 END) as scheduled,
+                    SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
+                    SUM(CASE WHEN status = 'no_show' THEN 1 ELSE 0 END) as no_show
+                FROM appointments
+            ''')
+            
+            result = cursor.fetchone()
+            return {
+                'total_appointments': result[0] or 0,
+                'scheduled': result[1] or 0,
+                'completed': result[2] or 0,
+                'cancelled': result[3] or 0,
+                'no_show': result[4] or 0
+            }
+    
+    async def get_appointments(self) -> List[Dict[str, Any]]:
+        """Get all interview appointments"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT * FROM appointments 
+                ORDER BY scheduled_date DESC, scheduled_time DESC
+            ''')
+            return [dict(row) for row in cursor.fetchall()]
+    
+    async def create_appointment(self, applicant_name: str, applicant_email: str, 
+                                applicant_phone: str, scheduled_date: str, 
+                                scheduled_time: str, notes: str = "") -> Optional[int]:
+        """Create a new interview appointment"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO appointments 
+                (applicant_name, applicant_email, applicant_phone, scheduled_date, 
+                 scheduled_time, status, notes, created_at)
+                VALUES (?, ?, ?, ?, ?, 'scheduled', ?, CURRENT_TIMESTAMP)
+            ''', (applicant_name, applicant_email, applicant_phone, scheduled_date, 
+                  scheduled_time, notes))
+            conn.commit()
+            return cursor.lastrowid
+    
+    async def update_appointment_status(self, appointment_id: int, status: str) -> bool:
+        """Update appointment status"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE appointments 
+                SET status = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            ''', (status, appointment_id))
+            conn.commit()
+            return cursor.rowcount > 0
+    
+    async def get_time_slots(self, date: str = None) -> List[Dict[str, Any]]:
+        """Get time slots for a specific date or all dates"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            
+            if date:
+                cursor.execute('''
+                    SELECT * FROM time_slots 
+                    WHERE date = ?
+                    ORDER BY time
+                ''', (date,))
+            else:
+                cursor.execute('''
+                    SELECT * FROM time_slots 
+                    ORDER BY date DESC, time
+                ''')
+            
+            return [dict(row) for row in cursor.fetchall()]
+    
+    async def create_time_slot(self, time: str, date: str) -> bool:
+        """Create a new time slot"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Check if slot already exists
+            cursor.execute('''
+                SELECT id FROM time_slots 
+                WHERE time = ? AND date = ?
+            ''', (time, date))
+            
+            if cursor.fetchone():
+                return False  # Slot already exists
+            
+            # Create time label from time
+            time_obj = datetime.strptime(time, '%H:%M')
+            label = time_obj.strftime('%I:%M %p').lstrip('0')
+            
+            cursor.execute('''
+                INSERT INTO time_slots (time, label, date, available, created_at)
+                VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)
+            ''', (time, label, date))
+            conn.commit()
+            return True
+    
+    async def update_time_slot_availability(self, slot_id: int, available: bool) -> bool:
+        """Update time slot availability"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE time_slots 
+                SET available = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            ''', (available, slot_id))
+            conn.commit()
+            return cursor.rowcount > 0
     
     def close(self):
         """Close all connections in the pool"""

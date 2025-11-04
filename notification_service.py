@@ -104,6 +104,59 @@ Please review applications in the Google Sheet.
         except Exception as e:
             logger.error(f"Failed to send daily summary: {e}")
             return False
+    
+    async def notify_applicant_status_update(self, user_id: int, name: str, status: str, 
+                                           reviewer_comments: str = None) -> bool:
+        """Send status update notification to applicant via Telegram"""
+        if not self.bot:
+            logger.warning("Notification service not configured - missing bot token")
+            return False
+        
+        if not user_id:
+            logger.warning(f"Cannot send notification - no user_id provided for applicant {name}")
+            return False
+        
+        try:
+            # Format message based on status
+            if status == 'approved':
+                message = f"""🎉 **Congratulations, {name}!**
+
+Your worship ministry application has been **approved**!
+
+We are excited to have you join our ministry. You will be contacted soon with further details.
+
+May God bless you! 🙏"""
+            elif status == 'rejected':
+                message = f"""Dear {name},
+
+Thank you for your interest in our worship ministry. After careful prayerful consideration, your application was not approved at this time.
+
+We encourage you to continue growing in your musical gifts and consider applying again in the future.
+
+Blessings! 🙏"""
+            else:
+                # For other status updates (e.g., pending -> reviewed)
+                message = f"""Dear {name},
+
+Your application status has been updated to: **{status}**
+
+"""
+                if reviewer_comments:
+                    message += f"**Note:** {reviewer_comments}\n"
+                message += "\nBlessings! 🙏"
+            
+            await self.bot.send_message(
+                chat_id=user_id,
+                text=message,
+                parse_mode='Markdown'
+            )
+            
+            logger.info(f"Status update notification sent to applicant {name} (user_id: {user_id})")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to send status update notification to applicant {name} (user_id: {user_id}): {e}")
+            return False
 
 # Email notification service (optional)
 class EmailNotificationService:

@@ -7,6 +7,7 @@ import jwt
 from datetime import datetime, timedelta
 from functools import wraps
 from database_optimized import DatabaseOptimized
+from notification_service import NotificationService
 from config import Config
 import logging
 
@@ -15,7 +16,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# Enable CORS for all routes - this should automatically handle OPTIONS
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": False
+    }
+}, automatic_options=True, send_wildcard=True)
 
 # Configuration
 SECRET_KEY = os.getenv('API_SECRET_KEY', 'your-secret-key-change-in-production')
@@ -24,6 +33,9 @@ ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'admin123')
 
 # Initialize database
 db = DatabaseOptimized()
+
+# Initialize notification service
+notification_service = NotificationService()
 
 def token_required(f):
     """Decorator to require JWT token"""
@@ -160,11 +172,36 @@ def update_submission_status(submission_id):
         
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        
+        # Get submission data before updating (to get user_id and name for notification)
+        submission = loop.run_until_complete(db.get_submission_by_id(submission_id))
+        
+        if not submission:
+            loop.close()
+            return jsonify({'error': 'Submission not found'}), 404
+        
+        # Update submission status
         loop.run_until_complete(
             db.update_submission_status(
                 submission_id, status, comments, reviewed_by
             )
         )
+        
+        # Send notification to applicant if status changed to approved/rejected
+        if submission.get('user_id') and status in ['approved', 'rejected']:
+            try:
+                loop.run_until_complete(
+                    notification_service.notify_applicant_status_update(
+                        user_id=submission['user_id'],
+                        name=submission.get('name', 'Applicant'),
+                        status=status,
+                        reviewer_comments=comments if comments else None
+                    )
+                )
+            except Exception as notif_error:
+                # Log but don't fail the request if notification fails
+                logger.warning(f"Failed to send notification to applicant: {notif_error}")
+        
         loop.close()
         
         return jsonify({
@@ -263,6 +300,256 @@ def set_registration_status():
 def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()})
+
+
+# Scheduling Endpoints
+@app.route('/api/schedule/stats', methods=['GET'])
+@token_required
+def get_schedule_stats():
+    """Get scheduling statistics"""
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        stats = loop.run_until_complete(db.get_schedule_stats())
+        loop.close()
+        return jsonify({'success': True, 'stats': stats})
+    except Exception as e:
+        logger.error(f"Error getting schedule stats: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments', methods=['GET'])
+@token_required
+def get_appointments():
+    """Get all interview appointments"""
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        appointments = loop.run_until_complete(db.get_appointments())
+        loop.close()
+        return jsonify({'success': True, 'appointments': appointments})
+    except Exception as e:
+        logger.error(f"Error getting appointments: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments/<int:appointment_id>', methods=['PUT'])
+@token_required
+def update_appointment_status(appointment_id):
+    """Update appointment status"""
+    try:
+        data = request.get_json()
+        status = data.get('status')
+        if not status:
+            return jsonify({'error': 'Status is required'}), 400
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success = loop.run_until_complete(db.update_appointment_status(appointment_id, status))
+        loop.close()
+        if success:
+            return jsonify({'success': True, 'message': 'Appointment status updated successfully'})
+        else:
+            return jsonify({'error': 'Failed to update appointment status'}), 500
+    except Exception as e:
+        logger.error(f"Error updating appointment status: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/schedule/time-slots', methods=['GET', 'OPTIONS'])
+def get_time_slots():
+    """Get time slots for a specific date or all dates"""
+    # Handle CORS preflight
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        return response
+    try:
+        date = request.args.get('date')
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        time_slots = loop.run_until_complete(db.get_time_slots(date))
+        loop.close()
+        return jsonify({'success': True, 'timeSlots': time_slots})
+    except Exception as e:
+        logger.error(f"Error getting time slots: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/schedule/time-slots', methods=['POST'])
+@token_required
+def create_time_slot():
+    """Create a new time slot"""
+    try:
+        data = request.get_json()
+        time = data.get('time')
+        date = data.get('date')
+        if not time or not date:
+            return jsonify({'error': 'Time and date are required'}), 400
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success = loop.run_until_complete(db.create_time_slot(time, date))
+        loop.close()
+        if success:
+            return jsonify({'success': True, 'message': 'Time slot created successfully'})
+        else:
+            return jsonify({'error': 'Failed to create time slot'}), 500
+    except Exception as e:
+        logger.error(f"Error creating time slot: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/schedule/time-slots/bulk', methods=['POST'])
+@token_required
+def create_bulk_time_slots():
+    """Create multiple time slots in bulk with custom duration"""
+    try:
+        data = request.get_json()
+        date = data.get('date')
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+        interval_minutes = data.get('interval_minutes', 30)
+        if not date or not start_time or not end_time:
+            return jsonify({'error': 'date, start_time, and end_time are required'}), 400
+        try:
+            start_obj = datetime.strptime(start_time, '%H:%M')
+            end_obj = datetime.strptime(end_time, '%H:%M')
+        except ValueError:
+            return jsonify({'error': 'Invalid time format. Use HH:MM'}), 400
+        if end_obj <= start_obj:
+            return jsonify({'error': 'end_time must be after start_time'}), 400
+        slots_created = 0
+        slots_skipped = 0
+        current_time = start_obj
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        while current_time < end_obj:
+            time_str = current_time.strftime('%H:%M')
+            success = loop.run_until_complete(db.create_time_slot(time_str, date))
+            if success:
+                slots_created += 1
+            else:
+                slots_skipped += 1
+            current_time += timedelta(minutes=interval_minutes)
+        loop.close()
+        return jsonify({
+            'success': True,
+            'message': f'Created {slots_created} time slots, skipped {slots_skipped} existing slots',
+            'slots_created': slots_created,
+            'slots_skipped': slots_skipped
+        })
+    except Exception as e:
+        logger.error(f"Error creating bulk time slots: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/schedule/time-slots/<int:slot_id>', methods=['PUT'])
+@token_required
+def update_time_slot(slot_id):
+    """Update time slot availability"""
+    try:
+        data = request.get_json()
+        available = data.get('available')
+        if available is None:
+            return jsonify({'error': 'Available status is required'}), 400
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success = loop.run_until_complete(db.update_time_slot_availability(slot_id, available))
+        loop.close()
+        if success:
+            return jsonify({'success': True, 'message': 'Time slot updated successfully'})
+        else:
+            return jsonify({'error': 'Failed to update time slot'}), 500
+    except Exception as e:
+        logger.error(f"Error updating time slot: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/schedule/verify-applicant', methods=['POST', 'OPTIONS'])
+def verify_applicant():
+    """Verify if a phone number belongs to an applicant by checking last 8 digits"""
+    # Handle CORS preflight requests
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
+    
+    try:
+        data = request.get_json()
+        phone = data.get('phone', '')
+        
+        if not phone:
+            return jsonify({'success': False, 'error': 'Phone number is required'}), 400
+        
+        # Extract last 8 digits from phone number
+        import re
+        digits_only = re.sub(r'\D', '', phone)
+        if len(digits_only) < 8:
+            return jsonify({'success': False, 'is_applicant': False, 'error': 'Phone number too short'}), 400
+        
+        last_8_digits = digits_only[-8:]
+        
+        # Run async function in event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        # Get all submissions and check if any phone number ends with these 8 digits
+        submissions = loop.run_until_complete(db.get_all_submissions())
+        loop.close()
+        
+        is_applicant = False
+        applicant_name = None
+        
+        for submission in submissions:
+            sub_phone = submission.get('phone', '')
+            sub_digits = re.sub(r'\D', '', sub_phone)
+            if len(sub_digits) >= 8 and sub_digits[-8:] == last_8_digits:
+                is_applicant = True
+                applicant_name = submission.get('name', '')
+                break
+        
+        return jsonify({
+            'success': True,
+            'is_applicant': is_applicant,
+            'applicant_name': applicant_name
+        })
+    except Exception as e:
+        logger.error(f"Error verifying applicant: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments', methods=['POST'])
+def create_appointment():
+    """Create a new interview appointment"""
+    try:
+        data = request.get_json()
+        required_fields = ['applicant_name', 'applicant_phone', 'scheduled_date', 'scheduled_time']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({'error': f'{field} is required'}), 400
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        appointment_id = loop.run_until_complete(db.create_appointment(
+            data['applicant_name'], 
+            data.get('applicant_email', ''), 
+            data['applicant_phone'],
+            data['scheduled_date'], 
+            data['scheduled_time'], 
+            data.get('notes', '')
+        ))
+        
+        # Mark the time slot as unavailable (booked)
+        if appointment_id:
+            slots = loop.run_until_complete(db.get_time_slots(data['scheduled_date']))
+            for slot in slots:
+                if slot['time'] == data['scheduled_time']:
+                    loop.run_until_complete(db.update_time_slot_availability(slot['id'], False))
+                    break
+        
+        loop.close()
+        if appointment_id:
+            return jsonify({'success': True, 'appointment_id': appointment_id, 'message': 'Appointment created successfully'})
+        else:
+            return jsonify({'error': 'Failed to create appointment'}), 500
+    except Exception as e:
+        logger.error(f"Error creating appointment: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     port = int(os.getenv('API_PORT', 5000))

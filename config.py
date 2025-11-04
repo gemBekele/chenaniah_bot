@@ -31,3 +31,8 @@ class Config:
         'https://www.googleapis.com/auth/drive.file',
         'https://www.googleapis.com/auth/spreadsheets'
     ]
+
+    # SMS Provider (Afromessage) Configuration
+    AFROMESSAGE_API_KEY = os.getenv('AFROMESSAGE_API_KEY')
+    AFROMESSAGE_SENDER_ID = os.getenv('AFROMESSAGE_SENDER_ID')
+    AFROMESSAGE_BASE_URL = os.getenv('AFROMESSAGE_BASE_URL', 'https://api.afromessage.com')
