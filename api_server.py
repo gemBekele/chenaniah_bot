@@ -467,10 +467,14 @@ def get_time_slots():
         asyncio.set_event_loop(loop)
         time_slots = loop.run_until_complete(db.get_time_slots(date))
         loop.close()
-        return jsonify({'success': True, 'timeSlots': time_slots})
+        response = jsonify({'success': True, 'timeSlots': time_slots})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
     except Exception as e:
         logger.error(f"Error getting time slots: {e}")
-        return jsonify({'error': str(e)}), 500
+        response = jsonify({'error': str(e)})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
 
 @app.route('/api/schedule/time-slots', methods=['POST'])
 @token_required
@@ -626,14 +630,18 @@ def verify_applicant():
                 applicant_name = submission.get('name', '')
                 break
         
-        return jsonify({
+        response = jsonify({
             'success': True,
             'is_applicant': is_applicant,
             'applicant_name': applicant_name
         })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
     except Exception as e:
         logger.error(f"Error verifying applicant: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        response = jsonify({'success': False, 'error': str(e)})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
 
 @app.route('/api/schedule/appointments/check', methods=['POST', 'OPTIONS'])
 def check_existing_appointment():
@@ -675,6 +683,123 @@ def check_existing_appointment():
         return response
     except Exception as e:
         logger.error(f"Error checking existing appointment: {e}")
+        response = jsonify({'success': False, 'error': str(e)})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
+
+@app.route('/api/applicant/status', methods=['POST', 'OPTIONS'])
+def get_applicant_status():
+    """Get applicant status (submission status and appointment final decision) by phone number"""
+    # Handle CORS preflight requests
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        response.headers.add('Access-Control-Max-Age', '3600')
+        return response
+    
+    try:
+        data = request.get_json()
+        phone = data.get('phone', '')
+        
+        if not phone:
+            response = jsonify({'success': False, 'error': 'Phone number is required'})
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response, 400
+        
+        # Extract last 8 digits from phone number
+        import re
+        digits_only = re.sub(r'\D', '', phone)
+        if len(digits_only) < 8:
+            response = jsonify({'success': False, 'error': 'Phone number too short'})
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response, 400
+        
+        last_8_digits = digits_only[-8:]
+        
+        # Run async function in event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        # Get submission status
+        submissions = loop.run_until_complete(db.get_all_submissions())
+        submission = None
+        for sub in submissions:
+            sub_phone = sub.get('phone', '')
+            sub_digits = re.sub(r'\D', '', sub_phone)
+            if len(sub_digits) >= 8 and sub_digits[-8:] == last_8_digits:
+                submission = sub
+                break
+        
+        # Get appointment status
+        appointments = loop.run_until_complete(db.get_appointments_by_phone(phone))
+        
+        # Find appointment with final decision (most recent)
+        final_decision = None
+        decision_made_at = None
+        appointment_date = None
+        appointment_time = None
+        
+        for apt in appointments:
+            if apt.get('final_decision'):
+                final_decision = apt.get('final_decision')
+                decision_made_at = apt.get('decision_made_at')
+                appointment_date = apt.get('scheduled_date')
+                appointment_time = apt.get('scheduled_time')
+                break  # Get the most recent one with a decision
+        
+        loop.close()
+        
+        if not submission:
+            response = jsonify({
+                'success': True,
+                'is_applicant': False,
+                'message': 'Phone number not found in our system'
+            })
+        else:
+            # Determine overall status
+            # Priority: final_decision > submission status
+            overall_status = None
+            status_message = None
+            
+            if final_decision:
+                if final_decision.lower() == 'accepted':
+                    overall_status = 'accepted'
+                    status_message = 'Congratulations! You have been accepted.'
+                elif final_decision.lower() == 'rejected':
+                    overall_status = 'rejected'
+                    status_message = 'Unfortunately, your application was not approved at this time.'
+            elif submission.get('status') == 'approved':
+                overall_status = 'approved'
+                status_message = 'Your application has been approved. Interview scheduling will be available soon.'
+            elif submission.get('status') == 'rejected':
+                overall_status = 'rejected'
+                status_message = 'Your application was not approved at this time.'
+            else:
+                overall_status = 'pending'
+                status_message = 'Your application is still under review. Please check back later.'
+            
+            response = jsonify({
+                'success': True,
+                'is_applicant': True,
+                'applicant_name': submission.get('name', ''),
+                'submission_status': submission.get('status', 'pending'),
+                'final_decision': final_decision,
+                'overall_status': overall_status,
+                'status_message': status_message,
+                'decision_made_at': decision_made_at,
+                'appointment_date': appointment_date,
+                'appointment_time': appointment_time,
+                'submitted_at': submission.get('submitted_at'),
+                'reviewer_comments': submission.get('reviewer_comments')
+            })
+        
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error getting applicant status: {e}")
         response = jsonify({'success': False, 'error': str(e)})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 500
