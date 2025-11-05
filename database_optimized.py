@@ -228,10 +228,41 @@ class DatabaseOptimized:
                 scheduled_time TEXT NOT NULL,
                 status TEXT DEFAULT 'scheduled',
                 notes TEXT,
+                selected_song TEXT,
+                additional_song TEXT,
+                additional_song_singer TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+        
+        # Add new columns to existing table if they don't exist (migration)
+        try:
+            cursor.execute('ALTER TABLE appointments ADD COLUMN selected_song TEXT')
+            conn.commit()
+            logger.info("✅ Added selected_song column to appointments table")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e).lower():
+                logger.warning(f"Could not add selected_song column: {e}")
+            # Column already exists, which is fine
+        
+        try:
+            cursor.execute('ALTER TABLE appointments ADD COLUMN additional_song TEXT')
+            conn.commit()
+            logger.info("✅ Added additional_song column to appointments table")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e).lower():
+                logger.warning(f"Could not add additional_song column: {e}")
+            # Column already exists, which is fine
+        
+        try:
+            cursor.execute('ALTER TABLE appointments ADD COLUMN additional_song_singer TEXT')
+            conn.commit()
+            logger.info("✅ Added additional_song_singer column to appointments table")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e).lower():
+                logger.warning(f"Could not add additional_song_singer column: {e}")
+            # Column already exists, which is fine
         
         # Create indexes for scheduling tables
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_time_slots_date ON time_slots(date)')
@@ -573,27 +604,82 @@ class DatabaseOptimized:
         """Get all interview appointments"""
         with self.get_connection() as conn:
             cursor = conn.cursor()
+            
+            # Ensure song columns exist (migration)
+            try:
+                cursor.execute('ALTER TABLE appointments ADD COLUMN selected_song TEXT')
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass  # Column already exists
+            
+            try:
+                cursor.execute('ALTER TABLE appointments ADD COLUMN additional_song TEXT')
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass  # Column already exists
+            
+            try:
+                cursor.execute('ALTER TABLE appointments ADD COLUMN additional_song_singer TEXT')
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass  # Column already exists
+            
+            # Now select all columns including song fields
             cursor.execute('''
-                SELECT * FROM appointments 
+                SELECT id, applicant_name, applicant_email, applicant_phone, 
+                       scheduled_date, scheduled_time, status, notes, 
+                       selected_song, additional_song, additional_song_singer,
+                       created_at, updated_at
+                FROM appointments 
                 ORDER BY scheduled_date DESC, scheduled_time DESC
             ''')
-            return [dict(row) for row in cursor.fetchall()]
+            
+            rows = cursor.fetchall()
+            # Convert Row objects to dictionaries
+            return [dict(row) for row in rows]
     
     async def create_appointment(self, applicant_name: str, applicant_email: str, 
                                 applicant_phone: str, scheduled_date: str, 
-                                scheduled_time: str, notes: str = "") -> Optional[int]:
+                                scheduled_time: str, notes: str = "",
+                                selected_song: str = "", additional_song: str = "",
+                                additional_song_singer: str = "") -> Optional[int]:
         """Create a new interview appointment"""
+        logger.info(f"Saving appointment - selected_song: {selected_song}, additional_song: {additional_song}, singer: {additional_song_singer}")
         with self.get_connection() as conn:
             cursor = conn.cursor()
+            
+            # Ensure song columns exist before inserting
+            try:
+                cursor.execute('ALTER TABLE appointments ADD COLUMN selected_song TEXT')
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass
+            
+            try:
+                cursor.execute('ALTER TABLE appointments ADD COLUMN additional_song TEXT')
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass
+            
+            try:
+                cursor.execute('ALTER TABLE appointments ADD COLUMN additional_song_singer TEXT')
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass
+            
             cursor.execute('''
                 INSERT INTO appointments 
                 (applicant_name, applicant_email, applicant_phone, scheduled_date, 
-                 scheduled_time, status, notes, created_at)
-                VALUES (?, ?, ?, ?, ?, 'scheduled', ?, CURRENT_TIMESTAMP)
+                 scheduled_time, status, notes, selected_song, additional_song, 
+                 additional_song_singer, created_at)
+                VALUES (?, ?, ?, ?, ?, 'scheduled', ?, ?, ?, ?, CURRENT_TIMESTAMP)
             ''', (applicant_name, applicant_email, applicant_phone, scheduled_date, 
-                  scheduled_time, notes))
+                  scheduled_time, notes, selected_song, additional_song, 
+                  additional_song_singer))
             conn.commit()
-            return cursor.lastrowid
+            appointment_id = cursor.lastrowid
+            logger.info(f"Appointment created with ID: {appointment_id}")
+            return appointment_id
     
     async def update_appointment_status(self, appointment_id: int, status: str) -> bool:
         """Update appointment status"""

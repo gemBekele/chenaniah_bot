@@ -592,6 +592,13 @@ def create_appointment():
         for field in required_fields:
             if not data.get(field):
                 return jsonify({'error': f'{field} is required'}), 400
+        
+        # Log song data for debugging
+        selected_song = data.get('selected_song', '')
+        additional_song = data.get('additional_song', '')
+        additional_song_singer = data.get('additional_song_singer', '')
+        logger.info(f"Creating appointment with songs - selected: {selected_song}, additional: {additional_song}, singer: {additional_song_singer}")
+        
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         appointment_id = loop.run_until_complete(db.create_appointment(
@@ -600,7 +607,10 @@ def create_appointment():
             data['applicant_phone'],
             data['scheduled_date'], 
             data['scheduled_time'], 
-            data.get('notes', '')
+            data.get('notes', ''),
+            selected_song,
+            additional_song,
+            additional_song_singer
         ))
         
         # Mark the time slot as unavailable (booked)
