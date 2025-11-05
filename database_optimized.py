@@ -264,11 +264,81 @@ class DatabaseOptimized:
                 logger.warning(f"Could not add additional_song_singer column: {e}")
             # Column already exists, which is fine
         
+        # Add attendance and approval columns
+        # coordinator_verified is used for attendance_checked (backward compatibility)
+        try:
+            cursor.execute('ALTER TABLE appointments ADD COLUMN coordinator_verified BOOLEAN DEFAULT 0')
+            conn.commit()
+            logger.info("✅ Added coordinator_verified (attendance_checked) column to appointments table")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e).lower():
+                logger.warning(f"Could not add coordinator_verified column: {e}")
+        
+        try:
+            cursor.execute('ALTER TABLE appointments ADD COLUMN coordinator_verified_at TIMESTAMP')
+            conn.commit()
+            logger.info("✅ Added coordinator_verified_at (attendance_checked_at) column to appointments table")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e).lower():
+                logger.warning(f"Could not add coordinator_verified_at column: {e}")
+        
+        # Add coordinator_approved column for approval status
+        try:
+            cursor.execute('ALTER TABLE appointments ADD COLUMN coordinator_approved BOOLEAN DEFAULT 0')
+            conn.commit()
+            logger.info("✅ Added coordinator_approved column to appointments table")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e).lower():
+                logger.warning(f"Could not add coordinator_approved column: {e}")
+        
+        try:
+            cursor.execute('ALTER TABLE appointments ADD COLUMN coordinator_approved_at TIMESTAMP')
+            conn.commit()
+            logger.info("✅ Added coordinator_approved_at column to appointments table")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e).lower():
+                logger.warning(f"Could not add coordinator_approved_at column: {e}")
+        
+        try:
+            cursor.execute('ALTER TABLE appointments ADD COLUMN final_decision TEXT DEFAULT NULL')
+            conn.commit()
+            logger.info("✅ Added final_decision column to appointments table")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e).lower():
+                logger.warning(f"Could not add final_decision column: {e}")
+        
+        try:
+            cursor.execute('ALTER TABLE appointments ADD COLUMN decision_made_at TIMESTAMP')
+            conn.commit()
+            logger.info("✅ Added decision_made_at column to appointments table")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e).lower():
+                logger.warning(f"Could not add decision_made_at column: {e}")
+        
+        # Create interview_evaluations table for storing judge ratings
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS interview_evaluations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                appointment_id INTEGER NOT NULL,
+                judge_name TEXT NOT NULL,
+                criteria_name TEXT NOT NULL,
+                rating INTEGER NOT NULL CHECK (rating >= 0 AND rating <= 5),
+                comments TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (appointment_id) REFERENCES appointments (id),
+                UNIQUE(appointment_id, judge_name, criteria_name)
+            )
+        ''')
+        
         # Create indexes for scheduling tables
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_time_slots_date ON time_slots(date)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_time_slots_available ON time_slots(available)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_appointments_status ON appointments(status)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(scheduled_date)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_appointments_coordinator_verified ON appointments(coordinator_verified)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_evaluations_appointment_id ON interview_evaluations(appointment_id)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_evaluations_judge_name ON interview_evaluations(judge_name)')
         
         conn.commit()
         conn.close()
@@ -624,11 +694,14 @@ class DatabaseOptimized:
             except sqlite3.OperationalError:
                 pass  # Column already exists
             
-            # Now select all columns including song fields
+            # Now select all columns including song fields and new columns
             cursor.execute('''
                 SELECT id, applicant_name, applicant_email, applicant_phone, 
                        scheduled_date, scheduled_time, status, notes, 
                        selected_song, additional_song, additional_song_singer,
+                       coordinator_verified, coordinator_verified_at,
+                       coordinator_approved, coordinator_approved_at,
+                       final_decision, decision_made_at,
                        created_at, updated_at
                 FROM appointments 
                 ORDER BY scheduled_date DESC, scheduled_time DESC
@@ -637,6 +710,46 @@ class DatabaseOptimized:
             rows = cursor.fetchall()
             # Convert Row objects to dictionaries
             return [dict(row) for row in rows]
+    
+    async def get_appointments_by_phone(self, applicant_phone: str) -> List[Dict[str, Any]]:
+        """Get all appointments for a given phone number"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Extract last 8 digits from phone number for matching
+            import re
+            digits_only = re.sub(r'\D', '', applicant_phone)
+            if len(digits_only) < 8:
+                return []
+            
+            last_8_digits = digits_only[-8:]
+            
+            cursor.execute('''
+                SELECT id, applicant_name, applicant_email, applicant_phone, 
+                       scheduled_date, scheduled_time, status, notes, 
+                       selected_song, additional_song, additional_song_singer,
+                       coordinator_verified, coordinator_verified_at,
+                       coordinator_approved, coordinator_approved_at,
+                       final_decision, decision_made_at,
+                       created_at, updated_at
+                FROM appointments 
+                WHERE applicant_phone LIKE ?
+                ORDER BY scheduled_date DESC, scheduled_time DESC
+            ''', (f'%{last_8_digits}',))
+            
+            rows = cursor.fetchall()
+            # Convert Row objects to dictionaries
+            appointments = [dict(row) for row in rows]
+            
+            # Filter to only exact matches (last 8 digits)
+            filtered_appointments = []
+            for apt in appointments:
+                apt_phone = apt.get('applicant_phone', '')
+                apt_digits = re.sub(r'\D', '', apt_phone)
+                if len(apt_digits) >= 8 and apt_digits[-8:] == last_8_digits:
+                    filtered_appointments.append(apt)
+            
+            return filtered_appointments
     
     async def create_appointment(self, applicant_name: str, applicant_email: str, 
                                 applicant_phone: str, scheduled_date: str, 
@@ -757,6 +870,144 @@ class DatabaseOptimized:
                 SET available = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
             ''', (available, slot_id))
+            conn.commit()
+            return cursor.rowcount > 0
+    
+    async def verify_applicant_coordinator(self, appointment_id: int, verified: bool) -> bool:
+        """Mark attendance (present/absent) for an applicant by coordinator"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE appointments 
+                SET coordinator_verified = ?, 
+                    coordinator_verified_at = CASE WHEN ? = 1 THEN CURRENT_TIMESTAMP ELSE NULL END,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            ''', (1 if verified else 0, 1 if verified else 0, appointment_id))
+            conn.commit()
+            return cursor.rowcount > 0
+    
+    async def approve_applicant_coordinator(self, appointment_id: int, approved: bool) -> bool:
+        """Approve or disapprove an applicant by coordinator"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE appointments 
+                SET coordinator_approved = ?, 
+                    coordinator_approved_at = CASE WHEN ? = 1 THEN CURRENT_TIMESTAMP ELSE NULL END,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            ''', (1 if approved else 0, 1 if approved else 0, appointment_id))
+            conn.commit()
+            return cursor.rowcount > 0
+    
+    async def get_verified_appointments(self) -> List[Dict[str, Any]]:
+        """Get all appointments with attendance checked (for coordinator view)"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT id, applicant_name, applicant_email, applicant_phone, 
+                       scheduled_date, scheduled_time, status, notes, 
+                       selected_song, additional_song, additional_song_singer,
+                       coordinator_verified, coordinator_verified_at,
+                       coordinator_approved, coordinator_approved_at,
+                       final_decision, decision_made_at,
+                       created_at, updated_at
+                FROM appointments 
+                WHERE coordinator_verified = 1
+                ORDER BY scheduled_date ASC, scheduled_time ASC
+            ''')
+            return [dict(row) for row in cursor.fetchall()]
+    
+    async def get_present_and_approved_appointments(self) -> List[Dict[str, Any]]:
+        """Get appointments that are present (attendance checked) AND approved by coordinator (for judges)"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT id, applicant_name, applicant_email, applicant_phone, 
+                       scheduled_date, scheduled_time, status, notes, 
+                       selected_song, additional_song, additional_song_singer,
+                       coordinator_verified, coordinator_verified_at,
+                       coordinator_approved, coordinator_approved_at,
+                       final_decision, decision_made_at,
+                       created_at, updated_at
+                FROM appointments 
+                WHERE coordinator_verified = 1 AND coordinator_approved = 1
+                ORDER BY scheduled_date ASC, scheduled_time ASC
+            ''')
+            return [dict(row) for row in cursor.fetchall()]
+    
+    async def submit_evaluation(self, appointment_id: int, judge_name: str, 
+                               criteria_name: str, rating: int, comments: str = "") -> bool:
+        """Submit or update an evaluation rating from a judge"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            # Check if evaluation already exists
+            cursor.execute('''
+                SELECT id FROM interview_evaluations 
+                WHERE appointment_id = ? AND judge_name = ? AND criteria_name = ?
+            ''', (appointment_id, judge_name, criteria_name))
+            existing = cursor.fetchone()
+            
+            if existing:
+                # Update existing evaluation
+                cursor.execute('''
+                    UPDATE interview_evaluations 
+                    SET rating = ?, comments = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE appointment_id = ? AND judge_name = ? AND criteria_name = ?
+                ''', (rating, comments, appointment_id, judge_name, criteria_name))
+            else:
+                # Insert new evaluation
+                cursor.execute('''
+                    INSERT INTO interview_evaluations 
+                    (appointment_id, judge_name, criteria_name, rating, comments)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (appointment_id, judge_name, criteria_name, rating, comments))
+            conn.commit()
+            return True
+    
+    async def get_evaluations(self, appointment_id: int) -> List[Dict[str, Any]]:
+        """Get all evaluations for an appointment"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT appointment_id, judge_name, criteria_name, rating, comments,
+                       created_at, updated_at
+                FROM interview_evaluations 
+                WHERE appointment_id = ?
+                ORDER BY judge_name, criteria_name
+            ''', (appointment_id,))
+            return [dict(row) for row in cursor.fetchall()]
+    
+    async def get_evaluation_averages(self, appointment_id: int) -> Dict[str, float]:
+        """Calculate average ratings for each criteria across all judges"""
+        evaluations = await self.get_evaluations(appointment_id)
+        criteria_ratings: Dict[str, List[int]] = {}
+        
+        for eval in evaluations:
+            criteria = eval['criteria_name']
+            if criteria not in criteria_ratings:
+                criteria_ratings[criteria] = []
+            criteria_ratings[criteria].append(eval['rating'])
+        
+        averages = {}
+        for criteria, ratings in criteria_ratings.items():
+            if ratings:
+                averages[criteria] = sum(ratings) / len(ratings)
+        
+        return averages
+    
+    async def set_final_decision(self, appointment_id: int, decision: str) -> bool:
+        """Set final decision (accepted/rejected) for an applicant"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE appointments 
+                SET final_decision = ?, 
+                    decision_made_at = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            ''', (decision, appointment_id))
             conn.commit()
             return cursor.rowcount > 0
     

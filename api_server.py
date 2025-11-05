@@ -31,6 +31,10 @@ CORS(app, resources={
 SECRET_KEY = os.getenv('API_SECRET_KEY', 'your-secret-key-change-in-production')
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'admin123')
+COORDINATOR_USERNAME = os.getenv('COORDINATOR_USERNAME', 'coordinator')
+COORDINATOR_PASSWORD = os.getenv('COORDINATOR_PASSWORD', 'coordinator123')
+JUDGE_USERNAME = os.getenv('JUDGE_USERNAME', 'judge')
+JUDGE_PASSWORD = os.getenv('JUDGE_PASSWORD', 'judge123')
 
 # Initialize database
 db = DatabaseOptimized()
@@ -63,62 +67,8 @@ def token_required(f):
     
     return decorated
 
-@app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
-def login():
-    """Authenticate admin user"""
-    # Handle CORS preflight
-    if request.method == 'OPTIONS':
-        response = jsonify({})
-        origin = request.headers.get('Origin', '*')
-        # Allow requests from chenaniah.org and chenaniah.com
-        allowed_origins = [
-            'https://chenaniah.org',
-            'https://www.chenaniah.org',
-            'https://chenaniah.com',
-            'https://www.chenaniah.com'
-        ]
-        if origin in allowed_origins:
-            response.headers.add('Access-Control-Allow-Origin', origin)
-        else:
-            response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        response.headers.add('Access-Control-Max-Age', '3600')
-        return response
-    
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    
-    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-        # Generate JWT token
-        token = jwt.encode(
-            {'username': username, 'exp': datetime.utcnow() + timedelta(hours=24)},
-            SECRET_KEY,
-            algorithm='HS256'
-        )
-        
-        response = jsonify({
-            'success': True,
-            'token': token,
-            'username': username
-        })
-        # Add CORS headers to response
-        origin = request.headers.get('Origin', '*')
-        allowed_origins = [
-            'https://chenaniah.org',
-            'https://www.chenaniah.org',
-            'https://chenaniah.com',
-            'https://www.chenaniah.com'
-        ]
-        if origin in allowed_origins:
-            response.headers.add('Access-Control-Allow-Origin', origin)
-        else:
-            response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
-    
-    response = jsonify({'error': 'Invalid credentials'})
-    # Add CORS headers to error response too
+def add_cors_headers(response):
+    """Helper to add CORS headers"""
     origin = request.headers.get('Origin', '*')
     allowed_origins = [
         'https://chenaniah.org',
@@ -130,7 +80,109 @@ def login():
         response.headers.add('Access-Control-Allow-Origin', origin)
     else:
         response.headers.add('Access-Control-Allow-Origin', '*')
-    return response, 401
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    response.headers.add('Access-Control-Max-Age', '3600')
+    return response
+
+@app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
+def login():
+    """Authenticate admin user"""
+    # Handle CORS preflight
+    if request.method == 'OPTIONS':
+        return add_cors_headers(jsonify({}))
+    
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    
+    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        # Generate JWT token
+        token = jwt.encode(
+            {'username': username, 'role': 'admin', 'exp': datetime.utcnow() + timedelta(hours=24)},
+            SECRET_KEY,
+            algorithm='HS256'
+        )
+        
+        response = jsonify({
+            'success': True,
+            'token': token,
+            'username': username,
+            'role': 'admin'
+        })
+        return add_cors_headers(response)
+    
+    response = jsonify({'error': 'Invalid credentials'})
+    return add_cors_headers(response), 401
+
+@app.route('/api/auth/coordinator/login', methods=['POST', 'OPTIONS'])
+def coordinator_login():
+    """Authenticate coordinator"""
+    if request.method == 'OPTIONS':
+        return add_cors_headers(jsonify({}))
+    
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    
+    if username == COORDINATOR_USERNAME and password == COORDINATOR_PASSWORD:
+        token = jwt.encode(
+            {'username': username, 'role': 'coordinator', 'exp': datetime.utcnow() + timedelta(hours=24)},
+            SECRET_KEY,
+            algorithm='HS256'
+        )
+        
+        response = jsonify({
+            'success': True,
+            'token': token,
+            'username': username,
+            'role': 'coordinator'
+        })
+        return add_cors_headers(response)
+    
+    response = jsonify({'error': 'Invalid credentials'})
+    return add_cors_headers(response), 401
+
+@app.route('/api/auth/judge/login', methods=['POST', 'OPTIONS'])
+def judge_login():
+    """Authenticate judge"""
+    if request.method == 'OPTIONS':
+        return add_cors_headers(jsonify({}))
+    
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    
+    if username == JUDGE_USERNAME and password == JUDGE_PASSWORD:
+        token = jwt.encode(
+            {'username': username, 'role': 'judge', 'exp': datetime.utcnow() + timedelta(hours=24)},
+            SECRET_KEY,
+            algorithm='HS256'
+        )
+        
+        response = jsonify({
+            'success': True,
+            'token': token,
+            'username': username,
+            'role': 'judge'
+        })
+        return add_cors_headers(response)
+    
+    response = jsonify({'error': 'Invalid credentials'})
+    return add_cors_headers(response), 401
+
+def role_required(allowed_roles):
+    """Decorator to require specific role(s)"""
+    def decorator(f):
+        @wraps(f)
+        @token_required
+        def decorated(*args, **kwargs):
+            user_role = request.user.get('role')
+            if user_role not in allowed_roles:
+                return jsonify({'error': 'Insufficient permissions'}), 403
+            return f(*args, **kwargs)
+        return decorated
+    return decorator
 
 @app.route('/api/submissions', methods=['GET'])
 @token_required
@@ -583,6 +635,50 @@ def verify_applicant():
         logger.error(f"Error verifying applicant: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/schedule/appointments/check', methods=['POST', 'OPTIONS'])
+def check_existing_appointment():
+    """Check if an applicant already has a scheduled appointment"""
+    # Handle CORS preflight requests
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
+    
+    try:
+        data = request.get_json()
+        phone = data.get('phone', '')
+        
+        if not phone:
+            return jsonify({'success': False, 'error': 'Phone number is required'}), 400
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        existing_appointments = loop.run_until_complete(db.get_appointments_by_phone(phone))
+        loop.close()
+        
+        # Filter to only active appointments (scheduled status only)
+        active_appointments = [
+            apt for apt in existing_appointments 
+            if apt.get('status', '').lower() == 'scheduled'
+        ]
+        
+        has_existing = len(active_appointments) > 0
+        
+        response = jsonify({
+            'success': True,
+            'has_existing_appointment': has_existing,
+            'appointments': active_appointments if has_existing else []
+        })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+    except Exception as e:
+        logger.error(f"Error checking existing appointment: {e}")
+        response = jsonify({'success': False, 'error': str(e)})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
+
 @app.route('/api/schedule/appointments', methods=['POST'])
 def create_appointment():
     """Create a new interview appointment"""
@@ -593,14 +689,37 @@ def create_appointment():
             if not data.get(field):
                 return jsonify({'error': f'{field} is required'}), 400
         
+        # Check if applicant already has an existing appointment
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        existing_appointments = loop.run_until_complete(db.get_appointments_by_phone(data['applicant_phone']))
+        
+        # Filter to only active appointments (scheduled status only)
+        active_appointments = [
+            apt for apt in existing_appointments 
+            if apt.get('status', '').lower() == 'scheduled'
+        ]
+        
+        if active_appointments:
+            loop.close()
+            latest_appointment = active_appointments[0]  # Already sorted by date DESC
+            appointment_date = latest_appointment.get('scheduled_date', '')
+            appointment_time = latest_appointment.get('scheduled_time', '')
+            return jsonify({
+                'success': False,
+                'error': 'You already have a scheduled interview appointment.',
+                'existing_appointment': {
+                    'date': appointment_date,
+                    'time': appointment_time
+                }
+            }), 400
+        
         # Log song data for debugging
         selected_song = data.get('selected_song', '')
         additional_song = data.get('additional_song', '')
         additional_song_singer = data.get('additional_song_singer', '')
         logger.info(f"Creating appointment with songs - selected: {selected_song}, additional: {additional_song}, singer: {additional_song_singer}")
         
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
         appointment_id = loop.run_until_complete(db.create_appointment(
             data['applicant_name'], 
             data.get('applicant_email', ''), 
@@ -629,6 +748,154 @@ def create_appointment():
     except Exception as e:
         logger.error(f"Error creating appointment: {e}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments/<int:appointment_id>/attendance', methods=['PUT'])
+@role_required(['coordinator', 'admin'])
+def mark_attendance(appointment_id):
+    """Mark attendance (present/absent) for an applicant by coordinator"""
+    try:
+        data = request.get_json()
+        present = data.get('present', False)
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success = loop.run_until_complete(db.verify_applicant_coordinator(appointment_id, present))
+        loop.close()
+        
+        if success:
+            return jsonify({'success': True, 'message': 'Attendance updated'})
+        else:
+            return jsonify({'success': False, 'error': 'Failed to update attendance'}), 400
+    except Exception as e:
+        logger.error(f"Error updating attendance: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments/<int:appointment_id>/approve', methods=['PUT'])
+@role_required(['coordinator', 'admin'])
+def approve_applicant(appointment_id):
+    """Approve or disapprove an applicant by coordinator"""
+    try:
+        data = request.get_json()
+        approved = data.get('approved', False)
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success = loop.run_until_complete(db.approve_applicant_coordinator(appointment_id, approved))
+        loop.close()
+        
+        if success:
+            return jsonify({'success': True, 'message': 'Approval status updated'})
+        else:
+            return jsonify({'success': False, 'error': 'Failed to update approval'}), 400
+    except Exception as e:
+        logger.error(f"Error updating approval: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments/attendance', methods=['GET'])
+@role_required(['coordinator', 'admin'])
+def get_attendance_appointments():
+    """Get all appointments with attendance checked (for coordinator view)"""
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        appointments = loop.run_until_complete(db.get_verified_appointments())
+        loop.close()
+        
+        return jsonify({'success': True, 'appointments': appointments})
+    except Exception as e:
+        logger.error(f"Error fetching appointments: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments/evaluation', methods=['GET'])
+@role_required(['judge', 'admin'])
+def get_appointments_for_evaluation():
+    """Get appointments that are present AND approved by coordinator (for judges)"""
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        appointments = loop.run_until_complete(db.get_present_and_approved_appointments())
+        loop.close()
+        
+        return jsonify({'success': True, 'appointments': appointments})
+    except Exception as e:
+        logger.error(f"Error fetching appointments for evaluation: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments/<int:appointment_id>/evaluation', methods=['POST', 'PUT'])
+@role_required(['judge', 'admin'])
+def submit_evaluation(appointment_id):
+    """Submit evaluation rating from a judge"""
+    try:
+        data = request.get_json()
+        judge_name = data.get('judge_name')
+        criteria_name = data.get('criteria_name')
+        rating = data.get('rating')
+        comments = data.get('comments', '')
+        
+        if not judge_name or not criteria_name or rating is None:
+            return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+        
+        if not isinstance(rating, int) or rating < 0 or rating > 5:
+            return jsonify({'success': False, 'error': 'Rating must be between 0 and 5'}), 400
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success = loop.run_until_complete(
+            db.submit_evaluation(appointment_id, judge_name, criteria_name, rating, comments)
+        )
+        loop.close()
+        
+        if success:
+            return jsonify({'success': True, 'message': 'Evaluation submitted successfully'})
+        else:
+            return jsonify({'success': False, 'error': 'Failed to submit evaluation'}), 400
+    except Exception as e:
+        logger.error(f"Error submitting evaluation: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments/<int:appointment_id>/evaluations', methods=['GET'])
+@role_required(['judge', 'admin', 'coordinator'])
+def get_evaluations(appointment_id):
+    """Get all evaluations for an appointment"""
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        evaluations = loop.run_until_complete(db.get_evaluations(appointment_id))
+        averages = loop.run_until_complete(db.get_evaluation_averages(appointment_id))
+        loop.close()
+        
+        return jsonify({
+            'success': True, 
+            'evaluations': evaluations,
+            'averages': averages
+        })
+    except Exception as e:
+        logger.error(f"Error fetching evaluations: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/schedule/appointments/<int:appointment_id>/decision', methods=['PUT'])
+@token_required
+def set_final_decision(appointment_id):
+    """Set final decision (accepted/rejected) for an applicant"""
+    try:
+        data = request.get_json()
+        decision = data.get('decision')
+        
+        if decision not in ['accepted', 'rejected']:
+            return jsonify({'success': False, 'error': 'Decision must be "accepted" or "rejected"'}), 400
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success = loop.run_until_complete(db.set_final_decision(appointment_id, decision))
+        loop.close()
+        
+        if success:
+            return jsonify({'success': True, 'message': f'Applicant marked as {decision}'})
+        else:
+            return jsonify({'success': False, 'error': 'Failed to update decision'}), 400
+    except Exception as e:
+        logger.error(f"Error setting final decision: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 if __name__ == '__main__':
