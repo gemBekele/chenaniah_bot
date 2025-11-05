@@ -452,8 +452,14 @@ def create_bulk_time_slots():
         start_time = data.get('start_time')
         end_time = data.get('end_time')
         interval_minutes = data.get('interval_minutes', 30)
+        location = data.get('location')
+        number_of_slots = data.get('number_of_slots')
+        
         if not date or not start_time or not end_time:
             return jsonify({'error': 'date, start_time, and end_time are required'}), 400
+        if not location:
+            return jsonify({'error': 'location is required'}), 400
+        
         try:
             start_obj = datetime.strptime(start_time, '%H:%M')
             end_obj = datetime.strptime(end_time, '%H:%M')
@@ -461,19 +467,36 @@ def create_bulk_time_slots():
             return jsonify({'error': 'Invalid time format. Use HH:MM'}), 400
         if end_obj <= start_obj:
             return jsonify({'error': 'end_time must be after start_time'}), 400
+        
         slots_created = 0
         slots_skipped = 0
         current_time = start_obj
+        
+        # If number_of_slots is specified, calculate the interval needed
+        if number_of_slots:
+            total_minutes = (end_obj - start_obj).total_seconds() / 60
+            calculated_interval = int(total_minutes / number_of_slots)
+            if calculated_interval < 1:
+                calculated_interval = 1
+            interval_minutes = calculated_interval
+        
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        slot_count = 0
         while current_time < end_obj:
             time_str = current_time.strftime('%H:%M')
-            success = loop.run_until_complete(db.create_time_slot(time_str, date))
+            success = loop.run_until_complete(db.create_time_slot(time_str, date, location))
             if success:
                 slots_created += 1
+                slot_count += 1
             else:
                 slots_skipped += 1
             current_time += timedelta(minutes=interval_minutes)
+            
+            # Stop if we've created the requested number of slots
+            if number_of_slots and slot_count >= number_of_slots:
+                break
+                
         loop.close()
         return jsonify({
             'success': True,

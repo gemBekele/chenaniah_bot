@@ -166,11 +166,46 @@ class DatabaseOptimized:
                 label TEXT NOT NULL,
                 date TEXT NOT NULL,
                 available BOOLEAN DEFAULT 1,
+                period TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(time, date)
             )
         ''')
+        
+        # Add period column if it doesn't exist (migration for existing databases)
+        try:
+            cursor.execute('ALTER TABLE time_slots ADD COLUMN period TEXT')
+            logger.info("Added period column to time_slots table")
+        except sqlite3.OperationalError:
+            # Column already exists, skip
+            pass
+        
+        # Add location column if it doesn't exist (migration for existing databases)
+        try:
+            cursor.execute('ALTER TABLE time_slots ADD COLUMN location TEXT')
+            logger.info("Added location column to time_slots table")
+        except sqlite3.OperationalError:
+            # Column already exists, skip
+            pass
+        
+        # Migrate existing slots to have period set
+        try:
+            # Extract hours from time string (HH:MM format) and set period
+            cursor.execute('''
+                UPDATE time_slots 
+                SET period = CASE 
+                    WHEN CAST(SUBSTR(time, 1, 2) AS INTEGER) >= 9 
+                         AND CAST(SUBSTR(time, 1, 2) AS INTEGER) < 12 THEN 'morning'
+                    WHEN CAST(SUBSTR(time, 1, 2) AS INTEGER) >= 12 
+                         AND CAST(SUBSTR(time, 1, 2) AS INTEGER) <= 17 THEN 'afternoon'
+                    ELSE NULL
+                END
+                WHERE period IS NULL
+            ''')
+            logger.info("Migrated period for existing time slots")
+        except Exception as e:
+            logger.warning(f"Could not migrate period for existing slots: {e}")
         
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS appointments (
@@ -580,7 +615,7 @@ class DatabaseOptimized:
             
             return [dict(row) for row in cursor.fetchall()]
     
-    async def create_time_slot(self, time: str, date: str) -> bool:
+    async def create_time_slot(self, time: str, date: str, location: str = None) -> bool:
         """Create a new time slot"""
         with self.get_connection() as conn:
             cursor = conn.cursor()
@@ -598,10 +633,19 @@ class DatabaseOptimized:
             time_obj = datetime.strptime(time, '%H:%M')
             label = time_obj.strftime('%I:%M %p').lstrip('0')
             
+            # Determine period (morning or afternoon)
+            hours = time_obj.hour
+            if hours >= 9 and hours < 12:
+                period = 'morning'
+            elif hours >= 12 and hours <= 17:
+                period = 'afternoon'
+            else:
+                period = None
+            
             cursor.execute('''
-                INSERT INTO time_slots (time, label, date, available, created_at)
-                VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)
-            ''', (time, label, date))
+                INSERT INTO time_slots (time, label, date, available, period, location, created_at)
+                VALUES (?, ?, ?, 1, ?, ?, CURRENT_TIMESTAMP)
+            ''', (time, label, date, period, location))
             conn.commit()
             return True
     
