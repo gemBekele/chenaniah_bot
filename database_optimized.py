@@ -190,22 +190,33 @@ class DatabaseOptimized:
             pass
         
         # Migrate existing slots to have period set
+        # Also update ALL existing slots to new period definition (afternoon starts at 2:00 PM)
+        # This ensures all slots are updated when the definition changes
+        # IMPORTANT: This runs on every startup to ensure all slots have correct period
         try:
             # Extract hours from time string (HH:MM format) and set period
+            # Morning: 9:00 AM - 1:59 PM (09:00 - 13:59)
+            # Afternoon: 2:00 PM - 5:00 PM (14:00 - 17:00)
             cursor.execute('''
                 UPDATE time_slots 
                 SET period = CASE 
                     WHEN CAST(SUBSTR(time, 1, 2) AS INTEGER) >= 9 
-                         AND CAST(SUBSTR(time, 1, 2) AS INTEGER) < 12 THEN 'morning'
-                    WHEN CAST(SUBSTR(time, 1, 2) AS INTEGER) >= 12 
+                         AND CAST(SUBSTR(time, 1, 2) AS INTEGER) < 14 THEN 'morning'
+                    WHEN CAST(SUBSTR(time, 1, 2) AS INTEGER) >= 14 
                          AND CAST(SUBSTR(time, 1, 2) AS INTEGER) <= 17 THEN 'afternoon'
                     ELSE NULL
                 END
-                WHERE period IS NULL
             ''')
-            logger.info("Migrated period for existing time slots")
+            rows_updated = cursor.rowcount
+            conn.commit()  # Ensure the update is committed
+            if rows_updated > 0:
+                logger.info(f"✅ Updated period for {rows_updated} time slots (afternoon starts at 2:00 PM)")
+            else:
+                logger.info("No time slots found to update")
         except Exception as e:
-            logger.warning(f"Could not migrate period for existing slots: {e}")
+            logger.error(f"❌ Could not migrate period for existing slots: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
         
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS appointments (
@@ -634,10 +645,12 @@ class DatabaseOptimized:
             label = time_obj.strftime('%I:%M %p').lstrip('0')
             
             # Determine period (morning or afternoon)
+            # Morning: 9:00 AM - 1:59 PM (09:00 - 13:59)
+            # Afternoon: 2:00 PM - 5:00 PM (14:00 - 17:00)
             hours = time_obj.hour
-            if hours >= 9 and hours < 12:
+            if hours >= 9 and hours < 14:
                 period = 'morning'
-            elif hours >= 12 and hours <= 17:
+            elif hours >= 14 and hours <= 17:
                 period = 'afternoon'
             else:
                 period = None
