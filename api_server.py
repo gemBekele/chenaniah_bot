@@ -839,6 +839,51 @@ def create_appointment():
                 }
             }), 400
         
+        # Check if applicant's submission is approved
+        import re
+        phone = data['applicant_phone']
+        digits_only = re.sub(r'\D', '', phone)
+        if len(digits_only) < 8:
+            loop.close()
+            return jsonify({'success': False, 'error': 'Invalid phone number format'}), 400
+        
+        last_8_digits = digits_only[-8:]
+        submissions = loop.run_until_complete(db.get_all_submissions())
+        submission = None
+        for sub in submissions:
+            sub_phone = sub.get('phone', '')
+            sub_digits = re.sub(r'\D', '', sub_phone)
+            if len(sub_digits) >= 8 and sub_digits[-8:] == last_8_digits:
+                submission = sub
+                break
+        
+        if not submission:
+            loop.close()
+            return jsonify({
+                'success': False,
+                'error': 'Phone number not found in our system. Please ensure you have submitted an application first.'
+            }), 400
+        
+        # Check if submission status is approved
+        submission_status = submission.get('status', '').lower()
+        if submission_status != 'approved':
+            loop.close()
+            if submission_status == 'pending':
+                return jsonify({
+                    'success': False,
+                    'error': 'Your application is still under review. Please wait for approval before scheduling an interview.'
+                }), 400
+            elif submission_status == 'rejected':
+                return jsonify({
+                    'success': False,
+                    'error': 'Your application was not approved. You cannot schedule an interview at this time.'
+                }), 400
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': 'Your application must be approved before you can schedule an interview.'
+                }), 400
+        
         # Log song data for debugging
         selected_song = data.get('selected_song', '')
         additional_song = data.get('additional_song', '')
