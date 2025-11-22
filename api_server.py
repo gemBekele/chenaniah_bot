@@ -421,9 +421,10 @@ def get_schedule_stats():
 def get_appointments():
     """Get all interview appointments"""
     try:
+        search_query = request.args.get('search', '').strip()
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        appointments = loop.run_until_complete(db.get_appointments())
+        appointments = loop.run_until_complete(db.get_appointments(search_query=search_query if search_query else None))
         loop.close()
         return jsonify({'success': True, 'appointments': appointments})
     except Exception as e:
@@ -742,9 +743,19 @@ def get_applicant_status():
         appointment_time = None
         
         for apt in appointments:
-            if apt.get('final_decision'):
-                final_decision = apt.get('final_decision')
-                decision_made_at = apt.get('decision_made_at')
+            # Infer final_decision from status if not explicitly set
+            decision = apt.get('final_decision')
+            status = apt.get('status')
+            
+            if not decision:
+                if status == 'completed':
+                    decision = 'accepted'
+                elif status == 'no_show':
+                    decision = 'rejected'
+            
+            if decision:
+                final_decision = decision
+                decision_made_at = apt.get('decision_made_at') or apt.get('updated_at')
                 appointment_date = apt.get('scheduled_date')
                 appointment_time = apt.get('scheduled_time')
                 break  # Get the most recent one with a decision

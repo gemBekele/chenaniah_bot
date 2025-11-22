@@ -665,13 +665,13 @@ class DatabaseOptimized:
             return {
                 'total_appointments': result[0] or 0,
                 'scheduled': result[1] or 0,
-                'completed': result[2] or 0,
-                'cancelled': result[3] or 0,
-                'no_show': result[4] or 0
+                'accepted': result[2] or 0,  # completed = accepted
+                'rejected': result[4] or 0,  # no_show = rejected
+                'cancelled': result[3] or 0
             }
     
-    async def get_appointments(self) -> List[Dict[str, Any]]:
-        """Get all interview appointments"""
+    async def get_appointments(self, search_query: str = None) -> List[Dict[str, Any]]:
+        """Get all interview appointments with optional search"""
         with self.get_connection() as conn:
             cursor = conn.cursor()
             
@@ -694,8 +694,8 @@ class DatabaseOptimized:
             except sqlite3.OperationalError:
                 pass  # Column already exists
             
-            # Now select all columns including song fields and new columns
-            cursor.execute('''
+            # Build query
+            query = '''
                 SELECT id, applicant_name, applicant_email, applicant_phone, 
                        scheduled_date, scheduled_time, status, notes, 
                        selected_song, additional_song, additional_song_singer,
@@ -704,8 +704,20 @@ class DatabaseOptimized:
                        final_decision, decision_made_at,
                        created_at, updated_at
                 FROM appointments 
-                ORDER BY scheduled_date DESC, scheduled_time DESC
-            ''')
+            '''
+            
+            params = []
+            if search_query:
+                query += '''
+                    WHERE LOWER(applicant_name) LIKE LOWER(?) OR 
+                          LOWER(applicant_phone) LIKE LOWER(?)
+                '''
+                search_param = f'%{search_query}%'
+                params.extend([search_param, search_param])
+            
+            query += ' ORDER BY scheduled_date DESC, scheduled_time DESC'
+            
+            cursor.execute(query, params)
             
             rows = cursor.fetchall()
             # Convert Row objects to dictionaries
@@ -724,6 +736,10 @@ class DatabaseOptimized:
             
             last_8_digits = digits_only[-8:]
             
+            # Create a pattern that matches the digits with any characters in between
+            # e.g. 1234 -> %1%2%3%4
+            like_pattern = '%' + '%'.join(list(last_8_digits))
+            
             cursor.execute('''
                 SELECT id, applicant_name, applicant_email, applicant_phone, 
                        scheduled_date, scheduled_time, status, notes, 
@@ -735,7 +751,7 @@ class DatabaseOptimized:
                 FROM appointments 
                 WHERE applicant_phone LIKE ?
                 ORDER BY scheduled_date DESC, scheduled_time DESC
-            ''', (f'%{last_8_digits}',))
+            ''', (like_pattern,))
             
             rows = cursor.fetchall()
             # Convert Row objects to dictionaries
@@ -795,14 +811,27 @@ class DatabaseOptimized:
             return appointment_id
     
     async def update_appointment_status(self, appointment_id: int, status: str) -> bool:
-        """Update appointment status"""
+        """Update appointment status and sync final_decision"""
+        final_decision = None
+        if status == 'completed':
+            final_decision = 'accepted'
+        elif status == 'no_show':
+            final_decision = 'rejected'
+            
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute('''
-                UPDATE appointments 
-                SET status = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-            ''', (status, appointment_id))
+            if final_decision:
+                cursor.execute('''
+                    UPDATE appointments 
+                    SET status = ?, final_decision = ?, decision_made_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                ''', (status, final_decision, appointment_id))
+            else:
+                cursor.execute('''
+                    UPDATE appointments 
+                    SET status = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                ''', (status, appointment_id))
             conn.commit()
             return cursor.rowcount > 0
     
