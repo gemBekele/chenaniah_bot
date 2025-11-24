@@ -650,14 +650,23 @@ class DatabaseOptimized:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             
-            # Get appointment counts by status
+            # Get appointment counts by status and final_decision
+            # For accepted/rejected, use final_decision if available, otherwise infer from status
             cursor.execute('''
                 SELECT 
                     COUNT(*) as total_appointments,
                     SUM(CASE WHEN status = 'scheduled' THEN 1 ELSE 0 END) as scheduled,
-                    SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
                     SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
-                    SUM(CASE WHEN status = 'no_show' THEN 1 ELSE 0 END) as no_show
+                    SUM(CASE 
+                        WHEN final_decision = 'accepted' THEN 1 
+                        WHEN final_decision IS NULL AND status = 'completed' THEN 1 
+                        ELSE 0 
+                    END) as accepted,
+                    SUM(CASE 
+                        WHEN final_decision = 'rejected' THEN 1 
+                        WHEN final_decision IS NULL AND status = 'no_show' THEN 1 
+                        ELSE 0 
+                    END) as rejected
                 FROM appointments
             ''')
             
@@ -665,9 +674,9 @@ class DatabaseOptimized:
             return {
                 'total_appointments': result[0] or 0,
                 'scheduled': result[1] or 0,
-                'accepted': result[2] or 0,  # completed = accepted
-                'rejected': result[4] or 0,  # no_show = rejected
-                'cancelled': result[3] or 0
+                'accepted': result[3] or 0,  # Based on final_decision or status
+                'rejected': result[4] or 0,  # Based on final_decision or status
+                'cancelled': result[2] or 0
             }
     
     async def get_appointments(self, search_query: str = None) -> List[Dict[str, Any]]:
