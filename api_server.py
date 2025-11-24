@@ -741,6 +741,7 @@ def get_applicant_status():
         decision_made_at = None
         appointment_date = None
         appointment_time = None
+        appointment_status = None
         
         for apt in appointments:
             # Infer final_decision from status if not explicitly set
@@ -758,7 +759,13 @@ def get_applicant_status():
                 decision_made_at = apt.get('decision_made_at') or apt.get('updated_at')
                 appointment_date = apt.get('scheduled_date')
                 appointment_time = apt.get('scheduled_time')
+                appointment_status = status
                 break  # Get the most recent one with a decision
+            elif status and not appointment_status:
+                # Store the most recent appointment status even if no decision yet
+                appointment_status = status
+                appointment_date = apt.get('scheduled_date')
+                appointment_time = apt.get('scheduled_time')
         
         loop.close()
         
